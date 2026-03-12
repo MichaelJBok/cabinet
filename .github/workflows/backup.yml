@@ -1,0 +1,42 @@
+name: Daily Recipe Backup
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # 3am UTC every day
+  workflow_dispatch:       # also allows manual trigger from GitHub Actions tab
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BACKUP_TOKEN }}
+
+      - name: Export recipes from Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          mkdir -p backups
+
+          curl -s \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$SUPABASE_URL/rest/v1/recipes?select=*&order=id" \
+            -o backups/$DATE.json
+
+          echo "Backup saved to backups/$DATE.json"
+          wc -c backups/$DATE.json
+
+      - name: Commit backup
+        run: |
+          git config user.name "Cabinet Backup"
+          git config user.email "backup@cabinet"
+          git add backups/
+          # Only commit if there's actually a new/changed file
+          git diff --staged --quiet || git commit -m "backup: $(date +%Y-%m-%d)"
+          git push
