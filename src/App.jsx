@@ -48,8 +48,11 @@ function parseOz(str) {
   if (slashMixed) return parseInt(slashMixed[1]) + parseInt(slashMixed[2]) / parseInt(slashMixed[3]);
   const slashOnly = s.match(/^(\d+)\s*\/\s*(\d+)$/);
   if (slashOnly) return parseInt(slashOnly[1]) / parseInt(slashOnly[2]);
+  // Only accept if the entire string is numeric (no trailing words like "dashes")
   const n = parseFloat(s);
-  return isNaN(n) ? null : n;
+  if (isNaN(n)) return null;
+  if (!/^[\d.\s/¼½¾⅓⅔⅛]+$/.test(s)) return null;
+  return n;
 }
 
 function formatAmt(oz, unit, servings) {
