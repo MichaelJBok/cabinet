@@ -625,8 +625,8 @@ function AmountEditor({ oz, displayAmt, unit, servings, onChange, t = {} }) {
   };
 
   const commit = () => {
-    const n = parseFloat(raw.replace(/[^\d.\/]/g, ""));
-    if (!isNaN(n) && n > 0) onChange({ oz: n, displayAmt: null });
+    const parsed = parseOz(raw);
+    if (parsed !== null && parsed > 0) onChange({ oz: parsed, displayAmt: null });
     else if (raw.trim()) onChange({ oz: null, displayAmt: raw.trim() });
     setEditing(false);
   };
