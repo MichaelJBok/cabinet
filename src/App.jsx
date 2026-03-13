@@ -1935,7 +1935,7 @@ export default function CocktailGuide() {
                         <CocktailIllustration name={r.name} glass={r.glass} color={r.color} size={54} visOverride={customVisuals[r.id]||null} lightMode={lightMode}/>
                       </div>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3,flexWrap:"wrap",gap:8}}>
                           <div style={{fontSize:14,fontWeight:"400",color:t.textPrimary,lineHeight:1.2,fontFamily:fontDisplay}}>{r.name}</div>
                           <div style={{display:"flex",gap:1,alignItems:"center",flexShrink:0}}>
                             <button onClick={e=>{e.stopPropagation();toggleWantToTry(r.id);}} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}}><svg width="13" height="13" viewBox="0 0 24 24" fill={r.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:r.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
