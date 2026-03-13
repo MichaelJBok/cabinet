@@ -2096,9 +2096,10 @@ export default function CocktailGuide() {
                 background:`linear-gradient(135deg, ${activeRecipe.color}20, ${activeRecipe.color}08)`,
                 border:`1px solid ${activeRecipe.color}50`, borderRadius:16, padding:24,
                 boxShadow: lightMode ? "0 8px 40px rgba(0,0,0,0.12)" : "0 8px 40px rgba(0,0,0,0.4)",
+                position:"relative",
               }}>
-                {/* Header: illustration + title, buttons absolutely positioned top-right */}
-                <div style={{position:"relative", paddingRight:120, marginBottom:3}}>
+                {/* Header: illustration + title */}
+                <div style={{marginBottom:3, paddingRight:120}}>
                   <div style={{display:"flex",alignItems:"center",gap:16}}>
                     <CocktailIllustration name={activeRecipe.name} glass={activeRecipe.glass} color={activeRecipe.color} size={80} visOverride={customVisuals[activeRecipe.id]||null} lightMode={lightMode}/>
                     <div style={{minWidth:0}}>
@@ -2118,8 +2119,8 @@ export default function CocktailGuide() {
                       </div>
                     </div>
                   </div>
-                  {/* Buttons: absolute top-right, never affect layout */}
-                  <div style={{position:"absolute",top:0,right:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                  {/* Buttons: absolute top-right of card */}
+                  <div style={{position:"absolute",top:24,right:24,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
                     <div style={{display:"flex",gap:2,alignItems:"center"}}>
                       <button onClick={() => toggleWantToTry(activeRecipe.id)} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
                       <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
