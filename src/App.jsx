@@ -1804,19 +1804,7 @@ export default function CocktailGuide() {
                     </div>
                   )}
                 </div>
-                {/* Right: shopping list button */}
-                {recipes.some(r => r.wantToTry) && (
-                  <button onClick={() => setShowShoppingList(true)} title="Shopping list" style={{
-                    marginLeft:"auto", height:26, borderRadius:10, border:"1px solid "+t.cardBorder,
-                    background:"transparent", color:t.textSecond, cursor:"pointer",
-                    display:"flex", alignItems:"center", gap:5, padding:"0 9px",
-                    fontSize:11, fontFamily:"inherit", whiteSpace:"nowrap", flexShrink:0,
-                  }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                    {shoppingList.length > 0 ? `${shoppingList.length} to buy` : "all stocked"}
-                  </button>
-                )}
-                {/* Bar items + match any/all + ingredient filter + sort + toggles + count */}
+                                 {/* Bar items + match any/all + ingredient filter + sort + toggles + count */}
                 <div style={{display:"flex",gap:4,alignItems:"center",marginLeft:4}}>
                   {selectedMixers.size > 0 && !showSidebar ? (
                     <div style={{display:"flex",alignItems:"center",gap:0,borderRadius:12,border:"1px solid",
@@ -1894,7 +1882,20 @@ export default function CocktailGuide() {
                     opacity: showFavOnly ? 1 : 0.35,
                   }}><svg width="15" height="15" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
                 </div>
-                <div style={{color:t.textSecond,fontSize:11,marginLeft:"auto",whiteSpace:"nowrap"}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginLeft:"auto",flexShrink:0}}>
+                  {recipes.some(r => r.wantToTry) && (
+                    <button onClick={() => setShowShoppingList(true)} title="Shopping list" style={{
+                      height:26, borderRadius:10, border:"1px solid "+t.cardBorder,
+                      background:"transparent", color:t.textSecond, cursor:"pointer",
+                      display:"flex", alignItems:"center", gap:5, padding:"0 9px",
+                      fontSize:11, fontFamily:"inherit", whiteSpace:"nowrap", flexShrink:0,
+                    }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                      {shoppingList.length > 0 ? `${shoppingList.length} to buy` : "all stocked"}
+                    </button>
+                  )}
+                  <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap"}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
+                </div>
               </div>
             </div>
 
@@ -2116,19 +2117,13 @@ export default function CocktailGuide() {
                       </div>
                     </div>
                   </div>
-                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4,flexShrink:0}}>
-                    {/* Icon buttons column */}
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-                      <button onClick={() => toggleFavorite(activeRecipe.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}} title="Favourite"><svg width="20" height="20" viewBox="0 0 24 24" fill={activeRecipe.favorite?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.favorite?1:0.3}}><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
-                      <button onClick={() => toggleWantToTry(activeRecipe.id)} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="20" height="20" viewBox="0 0 24 24" fill={activeRecipe.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
-                      <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
-                    </div>
-                    {/* Text action buttons column */}
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"stretch",gap:3}}>
-                      <button onClick={() => openVariant(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(100,200,255,0.4)",background:"rgba(100,200,255,0.08)",color:t.variantColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap",lineHeight:"normal"}}>Variant</button>
-                      <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(255,200,100,0.4)",background:"rgba(255,215,0,0.1)",color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
-                      <button onClick={() => deleteRecipe(activeRecipe.id)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
-                    </div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:5,alignItems:"center",justifyContent:"flex-end",flexShrink:0,maxWidth:160}}>
+                    <button onClick={() => toggleFavorite(activeRecipe.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}} title="Favourite"><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.favorite?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.favorite?1:0.3}}><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
+                    <button onClick={() => toggleWantToTry(activeRecipe.id)} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
+                    <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
+                    <button onClick={() => openVariant(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(100,200,255,0.4)",background:"rgba(100,200,255,0.08)",color:t.variantColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap",lineHeight:"normal"}}>Variant</button>
+                    <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(255,200,100,0.4)",background:"rgba(255,215,0,0.1)",color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
+                    <button onClick={() => deleteRecipe(activeRecipe.id)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
                   </div>
                 </div>
 
