@@ -4,7 +4,7 @@
 
 -- ── Recipes ────────────────────────────────────────────────────────────────────
 create table if not exists recipes (
-  id            integer primary key,
+  id            bigint primary key,
   name          text    not null,
   tags          text[]  not null default '{}',
   glass         text,

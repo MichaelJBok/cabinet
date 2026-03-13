@@ -1095,7 +1095,9 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
 
 function IngAmtInput({ ingItem, onCommit, t }) {
   const [draft, setDraft] = useState(null);
-  const displayed = ingItem.oz !== null ? String(ingItem.oz) : (ingItem.displayAmt || "");
+  // Use displayAmt if oz is null or 0 (0 is not a valid pour amount)
+  const hasNumericOz = ingItem.oz !== null && ingItem.oz !== undefined && ingItem.oz > 0;
+  const displayed = hasNumericOz ? String(ingItem.oz) : (ingItem.displayAmt || "");
   const value = draft !== null ? draft : displayed;
   return (
     <input
@@ -1158,6 +1160,7 @@ export default function CocktailGuide() {
   const [newIngName, setNewIngName] = useState("");
   const [newIngAmt, setNewIngAmt] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
+  const [noteSaved, setNoteSaved] = useState(false);
   const [expandedCats, setExpandedCats] = useState(new Set(["Spirits","Juices & Purées","Carbonated"]));
   const [unit, setUnit] = useState("oz");
   const [servings, setServings] = useState(1);
@@ -1336,20 +1339,13 @@ export default function CocktailGuide() {
   };
 
   const saveNotes = () => {
-    setRecipes(prev => prev.map(r => r.id === activeRecipe.id ? {...r, notes: notesDraft} : r));
-    setActiveRecipe(prev => ({...prev, notes: notesDraft}));
+    const updated = {...activeRecipe, notes: notesDraft};
+    setRecipes(prev => prev.map(r => r.id === activeRecipe.id ? updated : r));
+    setActiveRecipe(updated);
+    setNoteSaved(true);
+    setTimeout(() => setNoteSaved(false), 2000);
   };
 
-  const updateIngredientAmt = (ingName, newOz, newDisplayAmt) => {
-    const updater = r => ({
-      ...r,
-      ingredients: r.ingredients.map(i =>
-        i.name === ingName ? {...i, oz: newOz, displayAmt: newDisplayAmt} : i
-      )
-    });
-    setRecipes(prev => prev.map(r => r.id === activeRecipe.id ? updater(r) : r));
-    setActiveRecipe(prev => updater(prev));
-  };
 
   const openDetail = (r) => { setActiveRecipe(r); setNotesDraft(r.notes); setView("detail"); };
   const defaultVis = (glass, color) => {
@@ -1428,7 +1424,8 @@ export default function CocktailGuide() {
     const trimmed = newIngName.trim();
     if (!trimmed) return;
     const parsedOz = parseOz(newIngAmt);
-    const ingObj = { name: trimmed, oz: parsedOz, displayAmt: parsedOz === null ? newIngAmt.trim() || null : null };
+    const isNumeric = parsedOz !== null && parsedOz > 0;
+    const ingObj = { name: trimmed, oz: isNumeric ? parsedOz : null, displayAmt: isNumeric ? null : (newIngAmt.trim() || null) };
     // Check if it already exists in the bar list (case-insensitive)
     const alreadyKnown = allMixers.some(m => m.toLowerCase() === trimmed.toLowerCase());
     if (!alreadyKnown) {
@@ -1475,10 +1472,11 @@ export default function CocktailGuide() {
 
   const updateFormIngAmt = (idx, rawAmt) => {
     const parsedOz = parseOz(rawAmt);
+    const isNumeric = parsedOz !== null && parsedOz > 0;
     setEditForm(prev => ({
       ...prev,
       ingredients: prev.ingredients.map((ing, i) =>
-        i === idx ? { ...ing, oz: parsedOz, displayAmt: parsedOz === null ? rawAmt.trim() || null : null } : ing
+        i === idx ? { ...ing, oz: isNumeric ? parsedOz : null, displayAmt: isNumeric ? null : (rawAmt.trim() || null) } : ing
       )
     }));
   };
@@ -1683,7 +1681,7 @@ export default function CocktailGuide() {
       <div style={{display:"flex",flex:1,minHeight:"calc(100vh - 69px)"}}>
 
         {/* Main — full width, no sidebar */}
-        <main style={{flex:1, padding:18}}>
+        <main style={{flex:1, padding:18, minWidth:0, overflow:"hidden"}}>
 
           {/* RECIPES */}
           {view === "browse" && (<>
@@ -1998,7 +1996,7 @@ export default function CocktailGuide() {
                             </div>
                           );
                         })()}
-                        {r.notes && <div style={{marginTop:4,fontSize:9,color:t.textMuted,fontStyle:"italic"}}>📝 Has notes</div>}
+                        
                       </div>{/* end right col */}
                     </div>
                   );
@@ -2079,7 +2077,7 @@ export default function CocktailGuide() {
 
           {/* DETAIL */}
           {view === "detail" && activeRecipe && (
-            <div style={{maxWidth:620,margin:"0 auto"}}>
+            <div style={{maxWidth:620,margin:"0 auto",width:"100%",boxSizing:"border-box",padding:"0 2px"}}>
               <button onClick={() => setView("browse")} style={{
                 display:"inline-flex", alignItems:"center", gap:6,
                 background:t.cardBg, border:"1px solid "+t.cardBorder,
@@ -2154,19 +2152,15 @@ export default function CocktailGuide() {
                           {inBar && <span style={{fontSize:9,color:t.accent}}>✓</span>}
                           {ingItem.name}
                         </span>
-                        <AmountEditor
-                          oz={ingItem.oz}
-                          displayAmt={ingItem.displayAmt}
-                          unit={unit}
-                          servings={servings}
-                          onChange={({oz, displayAmt}) => updateIngredientAmt(ingItem.name, oz, displayAmt)}
-                          t={t}
-                        />
+                        <span style={{
+                          fontSize:13, color:t.accent, fontStyle:"italic", fontWeight:"bold",
+                          background:t.hlBg, padding:"3px 9px", borderRadius:6,
+                          border:"1px solid "+t.accentBorder,
+                        }}>
+                          {ingItem.oz !== null ? formatAmt(ingItem.oz, unit, servings) : (ingItem.displayAmt || "—")}
+                        </span>
                       </div>;
                     })}
-                  </div>
-                  <div style={{marginTop:8,fontSize:10,color:t.textSecond,fontStyle:"italic"}}>
-                    ✏ Click any amount to edit it in-place
                   </div>
                 </div>
 
@@ -2185,8 +2179,14 @@ export default function CocktailGuide() {
                     placeholder="Personal notes, tweaks, substitutions..." rows={3}
                     style={{width:"100%",background:t.sectionBg,border:"1px solid "+t.panelBorder,
                       borderRadius:9,padding:10,color:t.textPrimary,fontSize:13,fontFamily:"inherit",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
-                  <button onClick={saveNotes} style={{marginTop:6,padding:"6px 16px",borderRadius:12,border:"1px solid rgba(255,200,100,0.4)",background:t.accentBg,color:t.accent,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>
-                    Save Notes
+                  <button onClick={saveNotes} style={{
+                    marginTop:6, padding:"6px 16px", borderRadius:12, fontSize:12, fontFamily:"inherit",
+                    border:"1px solid "+(noteSaved ? "rgba(100,200,100,0.6)" : "rgba(255,200,100,0.4)"),
+                    background: noteSaved ? "rgba(100,200,100,0.15)" : t.accentBg,
+                    color: noteSaved ? "#6dbb6d" : t.accent,
+                    cursor:"pointer", transition:"all 0.3s ease",
+                  }}>
+                    {noteSaved ? "✓ Saved" : "Save Notes"}
                   </button>
                 </div>
 
