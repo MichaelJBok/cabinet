@@ -1805,7 +1805,8 @@ export default function CocktailGuide() {
                   )}
                 </div>
                                  {/* Bar items + match any/all + ingredient filter + sort + toggles + count */}
-                <div style={{display:"flex",gap:4,alignItems:"center",marginLeft:4}}>
+                <div style={{display:"flex",flexDirection:"column",gap:6,marginLeft:4}}>
+                <div style={{display:"flex",gap:4,alignItems:"center",flexWrap:"wrap"}}>
                   {selectedMixers.size > 0 && !showSidebar ? (
                     <div style={{display:"flex",alignItems:"center",gap:0,borderRadius:12,border:"1px solid",
                       borderColor: barFilterActive ? t.accentBorder : (lightMode?"rgba(0,0,0,0.2)":"rgba(255,255,255,0.2)"),
@@ -1882,7 +1883,8 @@ export default function CocktailGuide() {
                     opacity: showFavOnly ? 1 : 0.35,
                   }}><svg width="15" height="15" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
                 </div>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginLeft:"auto",flexShrink:0}}>
+                </div>{/* end first row */}
+                <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                   {recipes.some(r => r.wantToTry) && (
                     <button onClick={() => setShowShoppingList(true)} title="Shopping list" style={{
                       height:26, borderRadius:10, border:"1px solid "+t.cardBorder,
@@ -1895,7 +1897,8 @@ export default function CocktailGuide() {
                     </button>
                   )}
                   <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap"}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
-                </div>
+                </div>{/* end second row */}
+                </div>{/* end column wrapper */}
               </div>
             </div>
 
