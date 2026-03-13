@@ -1745,7 +1745,7 @@ export default function CocktailGuide() {
                   cursor:"pointer", fontSize:11, fontFamily:"inherit", letterSpacing:0.5,
                 }} title="Filter by ingredients without saving to My Bar">🧪 Filter</button>
                 <div style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
-                  <input placeholder="Search cocktails..." value={search} onChange={e => { setSearch(e.target.value); setIngFilter(null); }} style={{
+                  <input placeholder="Search" value={search} onChange={e => { setSearch(e.target.value); setIngFilter(null); }} style={{
                     padding:"7px 28px 7px 12px", borderRadius:16, border:"1px solid "+t.inputBorder,
                     background:t.inputBg, color:t.textPrimary, fontSize:12, fontFamily:"inherit", outline:"none", width:130,
                   }}/>
@@ -1769,7 +1769,7 @@ export default function CocktailGuide() {
                     cursor:"pointer", fontSize:10, fontFamily:"inherit", whiteSpace:"nowrap",
                     display:"flex", alignItems:"center", gap:5,
                   }}>
-                    <span>Cocktail Type{tagFilters.size > 0 ? ` (${tagFilters.size})` : ""}</span>
+                    <span>Type{tagFilters.size > 0 ? ` (${tagFilters.size})` : ""}</span>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       {showTagDropdown ? <polyline points="18,15 12,9 6,15"/> : <polyline points="6,9 12,15 18,9"/>}
                     </svg>
@@ -1816,8 +1816,7 @@ export default function CocktailGuide() {
                   )}
                 </div>
                                  {/* Bar items + match any/all + ingredient filter + sort + toggles + count */}
-                <div style={{display:"flex",flexDirection:"column",gap:6,marginLeft:4}}>
-                <div style={{display:"flex",gap:4,alignItems:"center",flexWrap:"wrap"}}>
+                <div style={{display:"flex",gap:4,alignItems:"center",flexWrap:"wrap",marginLeft:4}}>
                   {selectedMixers.size > 0 && !showSidebar ? (
                     <div style={{display:"flex",alignItems:"center",gap:0,borderRadius:12,border:"1px solid",
                       borderColor: barFilterActive ? t.accentBorder : (lightMode?"rgba(0,0,0,0.2)":"rgba(255,255,255,0.2)"),
@@ -1894,9 +1893,7 @@ export default function CocktailGuide() {
                       cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
                       opacity: showFavOnly ? 1 : 0.35,
                     }}><svg width="15" height="15" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
-                  </div>
-                </div>{/* end first row */}
-                <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginLeft:"auto",flexShrink:0,flexWrap:"wrap"}}>
                   {recipes.some(r => r.wantToTry) && (
                     <button onClick={() => setShowShoppingList(true)} title="Shopping list" style={{
                       height:26, borderRadius:10, border:"1px solid "+t.cardBorder,
@@ -1909,8 +1906,8 @@ export default function CocktailGuide() {
                     </button>
                   )}
                   <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap"}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
-                </div>{/* end second row */}
-                </div>{/* end column wrapper */}
+                  </div>
+                </div>
               </div>
             </div>
 
