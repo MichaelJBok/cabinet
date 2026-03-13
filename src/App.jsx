@@ -1906,7 +1906,9 @@ export default function CocktailGuide() {
                   )}
                   <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap"}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
                 </div>{/* end filter row */}
-              </div>
+              </div>{/* end filter flex row */}
+            </div>{/* end filter row div */}
+            </div>{/* end filter bar wrapper */}
 
             {filteredRecipes.length === 0 ? (
               <div style={{textAlign:"center",padding:"60px 20px",color:t.textSecond}}>
@@ -2013,8 +2015,6 @@ export default function CocktailGuide() {
                 })}
               </div>
             )}
-            </div>{/* end inner content */}
-            </div>{/* end sidebar flex row */}
             </div>{/* end flex:1 col */}
             </div>{/* end flex-start row */}
           </>)}
