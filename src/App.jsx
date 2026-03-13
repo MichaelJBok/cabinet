@@ -1744,10 +1744,21 @@ export default function CocktailGuide() {
                   color: showSidebar ? t.accent : t.textSecond,
                   cursor:"pointer", fontSize:11, fontFamily:"inherit", letterSpacing:0.5,
                 }} title="Filter by ingredients without saving to My Bar">🧪 Filter</button>
-                <input placeholder="Search cocktails..." value={search} onChange={e => { setSearch(e.target.value); setIngFilter(null); }} style={{
-                  padding:"7px 12px", borderRadius:16, border:"1px solid "+t.inputBorder,
-                  background:t.inputBg, color:t.textPrimary, fontSize:12, fontFamily:"inherit", outline:"none", width:160,
-                }}/>
+                <div style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
+                  <input placeholder="Search cocktails..." value={search} onChange={e => { setSearch(e.target.value); setIngFilter(null); }} style={{
+                    padding:"7px 28px 7px 12px", borderRadius:16, border:"1px solid "+t.inputBorder,
+                    background:t.inputBg, color:t.textPrimary, fontSize:12, fontFamily:"inherit", outline:"none", width:130,
+                  }}/>
+                  {search && (
+                    <button onClick={() => setSearch("")} style={{
+                      position:"absolute", right:7, background:"none", border:"none",
+                      cursor:"pointer", padding:0, display:"flex", alignItems:"center",
+                      color:t.textMuted, opacity:0.6,
+                    }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  )}
+                </div>
                 {/* Cocktail Type dropdown button */}
                 <div data-tag-dropdown style={{position:"relative"}}>
                   <button onClick={() => setShowTagDropdown(p => !p)} style={{
@@ -1861,28 +1872,29 @@ export default function CocktailGuide() {
                       }}>{label}</button>
                     ))}
                   </div>
-                  <button onClick={() => setShowWantToTryOnly(v => !v)} title="Want to try" style={{
-                    width:28, height:28, borderRadius:10, border:"1px solid",
-                    borderColor: showWantToTryOnly ? t.textSecond : "transparent",
-                    background: "transparent",
-                    cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
-                    opacity: showWantToTryOnly ? 1 : 0.35,
-                  }}><svg width="14" height="14" viewBox="0 0 24 24" fill={showWantToTryOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
-                  <button onClick={() => setShowVerifiedOnly(v => !v)} title="Verified only" style={{
-                    width:28, height:28, borderRadius:10, border:"1px solid",
-                    borderColor: showVerifiedOnly ? t.textSecond : "transparent",
-                    background: "transparent",
-                    cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
-                    opacity: showVerifiedOnly ? 1 : 0.35,
-                  }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:showVerifiedOnly?1:1}}><polyline points="20,6 9,17 4,12"/></svg></button>
-                  <button onClick={() => setShowFavOnly(!showFavOnly)} title="Favourites only" style={{
-                    width:28, height:28, borderRadius:10, border:"1px solid",
-                    borderColor: showFavOnly ? t.textSecond : "transparent",
-                    background: "transparent",
-                    cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
-                    opacity: showFavOnly ? 1 : 0.35,
-                  }}><svg width="15" height="15" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
-                </div>
+                  <div style={{display:"flex",gap:0,alignItems:"center",flexShrink:0}}>
+                    <button onClick={() => setShowWantToTryOnly(v => !v)} title="Want to try" style={{
+                      width:28, height:28, borderRadius:10, border:"1px solid",
+                      borderColor: showWantToTryOnly ? t.textSecond : "transparent",
+                      background: "transparent",
+                      cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
+                      opacity: showWantToTryOnly ? 1 : 0.35,
+                    }}><svg width="14" height="14" viewBox="0 0 24 24" fill={showWantToTryOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
+                    <button onClick={() => setShowVerifiedOnly(v => !v)} title="Verified only" style={{
+                      width:28, height:28, borderRadius:10, border:"1px solid",
+                      borderColor: showVerifiedOnly ? t.textSecond : "transparent",
+                      background: "transparent",
+                      cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
+                      opacity: showVerifiedOnly ? 1 : 0.35,
+                    }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg></button>
+                    <button onClick={() => setShowFavOnly(!showFavOnly)} title="Favourites only" style={{
+                      width:28, height:28, borderRadius:10, border:"1px solid",
+                      borderColor: showFavOnly ? t.textSecond : "transparent",
+                      background: "transparent",
+                      cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
+                      opacity: showFavOnly ? 1 : 0.35,
+                    }}><svg width="15" height="15" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
+                  </div>
                 </div>{/* end first row */}
                 <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                   {recipes.some(r => r.wantToTry) && (
