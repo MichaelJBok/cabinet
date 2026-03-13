@@ -2098,7 +2098,20 @@ export default function CocktailGuide() {
                 boxShadow: lightMode ? "0 8px 40px rgba(0,0,0,0.12)" : "0 8px 40px rgba(0,0,0,0.4)",
                 position:"relative",
               }}>
-                {/* Row 1: illustration + title */}
+                {/* Row 1: toggles left, action buttons right */}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
+                  <div style={{display:"flex",gap:2,alignItems:"center"}}>
+                    <button onClick={() => toggleWantToTry(activeRecipe.id)} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
+                    <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
+                    <button onClick={() => toggleFavorite(activeRecipe.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}} title="Favourite"><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.favorite?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.favorite?1:0.3}}><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
+                  </div>
+                  <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                    <button onClick={() => openVariant(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(100,200,255,0.4)",background:"rgba(100,200,255,0.08)",color:t.variantColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap",lineHeight:"normal"}}>Variant</button>
+                    <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(255,200,100,0.4)",background:"rgba(255,215,0,0.1)",color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
+                    <button onClick={() => deleteRecipe(activeRecipe.id)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
+                  </div>
+                </div>
+                {/* Row 2: illustration + title */}
                 <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:10}}>
                   <div style={{flexShrink:0}}>
                     <CocktailIllustration name={activeRecipe.name} glass={activeRecipe.glass} color={activeRecipe.color} size={80} visOverride={customVisuals[activeRecipe.id]||null} lightMode={lightMode}/>
@@ -2118,19 +2131,6 @@ export default function CocktailGuide() {
                         }}>{tag}</span>
                       ))}
                     </div>
-                  </div>
-                </div>
-                {/* Row 2: toggles left, action buttons right */}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4,flexWrap:"wrap",gap:6}}>
-                  <div style={{display:"flex",gap:2,alignItems:"center"}}>
-                    <button onClick={() => toggleWantToTry(activeRecipe.id)} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
-                    <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
-                    <button onClick={() => toggleFavorite(activeRecipe.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}} title="Favourite"><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.favorite?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.favorite?1:0.3}}><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
-                  </div>
-                  <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                    <button onClick={() => openVariant(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(100,200,255,0.4)",background:"rgba(100,200,255,0.08)",color:t.variantColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap",lineHeight:"normal"}}>Variant</button>
-                    <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(255,200,100,0.4)",background:"rgba(255,215,0,0.1)",color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
-                    <button onClick={() => deleteRecipe(activeRecipe.id)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
                   </div>
                 </div>
 
