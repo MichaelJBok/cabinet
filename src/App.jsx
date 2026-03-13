@@ -2432,10 +2432,11 @@ export default function CocktailGuide() {
                             setEditForm(prev => ({...prev, glass: label}));
                           }} style={{
                             padding:"5px 11px", borderRadius:10, border:"1px solid",
-                            borderColor: editVis.glass===val ? "#ffd700" : "rgba(255,200,100,0.25)",
-                            background: editVis.glass===val ? t.accentBg : t.panelBg,
-                            color: editVis.glass===val ? "#ffd700" : "#a09070",
+                            borderColor: editVis.glass===val ? t.accent : t.btnBorder,
+                            background: editVis.glass===val ? t.accentBg : "transparent",
+                            color: editVis.glass===val ? t.accent : t.textSecond,
                             cursor:"pointer", fontSize:11, fontFamily:"inherit",
+                            fontWeight: editVis.glass===val ? "600" : "400",
                           }}>{label}</button>
                         ))}
                       </div>

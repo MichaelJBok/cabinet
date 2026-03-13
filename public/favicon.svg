@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Coupe silhouette — solid shape, works on dark and light backgrounds -->
+  <!-- Bowl filled -->
+  <path d="M3 5 Q3 19 16 19 Q29 19 29 5 Z" fill="#c8622a"/>
+  <!-- Stem -->
+  <rect x="14.5" y="19" width="3" height="7" fill="#c8622a"/>
+  <!-- Base -->
+  <rect x="9" y="26" width="14" height="3" rx="1.5" fill="#c8622a"/>
+  <!-- Rim highlight -->
+  <line x1="3" y1="5" x2="29" y2="5" stroke="#e8c87a" stroke-width="2" stroke-linecap="round"/>
+</svg>
