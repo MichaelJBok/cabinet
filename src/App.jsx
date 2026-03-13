@@ -2015,8 +2015,8 @@ export default function CocktailGuide() {
             )}
             </div>{/* end inner content */}
             </div>{/* end sidebar flex row */}
-            </div>{/* end outer flex */}
-            </div>{/* end browse wrapper */}
+            </div>{/* end flex:1 col */}
+            </div>{/* end flex-start row */}
           </>)}
 
           {/* MY BAR */}
