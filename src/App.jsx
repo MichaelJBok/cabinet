@@ -1904,7 +1904,7 @@ export default function CocktailGuide() {
                       {shoppingList.length > 0 ? `${shoppingList.length} to buy` : "all stocked"}
                     </button>
                   )}
-                  <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap"}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
+                  <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap",marginLeft:8}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
                 </div>{/* end filter row */}
               </div>{/* end filter flex row */}
             </div>{/* end filter row div */}
