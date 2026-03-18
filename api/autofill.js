@@ -22,13 +22,13 @@ export default async function handler(req, res) {
 
 COLOR INSTRUCTIONS — this is critical, think carefully:
 Step 1: List the dominant colored ingredients and what color they contribute:
-- Campari → deep red #e8241a
-- Aperol → bright orange #f06020  
-- Yellow Chartreuse → bright yellow-green #d4e020
-- Green Chartreuse → vivid green #40c020
-- Midori → bright green #78c830
-- Blue Curaçao → bright blue #2060e0
-- Crème de Violette → purple #8040c0
+- Campari → deep red #c43020
+- Aperol → warm orange #d05c28  
+- Yellow Chartreuse → yellow-green #bcc830
+- Green Chartreuse → herbal green #48a028
+- Midori → muted green #68a828
+- Blue Curaçao → blue #3060c0
+- Crème de Violette → muted purple #7040a0
 - Grenadine → red #cc2040
 - Falernum → pale yellow #f0e880
 - Pineapple juice → golden yellow #f0c030
@@ -42,14 +42,14 @@ Step 1: List the dominant colored ingredients and what color they contribute:
 
 Step 2: Blend the colors of the dominant ingredients proportionally to get the final drink color. A shaken drink will be slightly lighter/cloudier.
 
-Step 3: Output ONLY a saturated, visually appealing hex. Never output near-white or near-grey — even clear drinks photograph as a warm pale yellow (#f0e8c8) due to the glass. Minimum saturation 30%.
+Step 3: Output a realistic hex that matches how the drink actually looks in a glass — slightly muted, not neon or oversaturated. Think of it as how the drink photographs, not a color swatch. Even clear drinks appear as a warm pale yellow (#f0e8c8) due to the glass. Minimum saturation 20%, maximum saturation 70% — avoid pure vivid colors.
 
 Examples:
-- Naked and Famous (equal parts mezcal, Yellow Chartreuse, Aperol, lime): Aperol orange + Chartreuse yellow-green = warm coral-orange #e8782a
-- Negroni (gin, sweet vermouth, Campari): Campari red dominates = #d43020  
-- Last Word (equal parts gin, Green Chartreuse, maraschino, lime): Green Chartreuse dominates = #78b830
-- Paper Plane (equal parts bourbon, Aperol, Amaro Nonino, lemon): Aperol orange + bourbon amber = #e07830
-- Jungle Bird (rum, Campari, pineapple, lime, simple): Campari red + pineapple gold = #d04820
+- Naked and Famous (equal parts mezcal, Yellow Chartreuse, Aperol, lime): Aperol orange + Chartreuse yellow-green = warm coral #c86828
+- Negroni (gin, sweet vermouth, Campari): Campari red dominates = #b83020  
+- Last Word (equal parts gin, Green Chartreuse, maraschino, lime): Green Chartreuse dominates = #609828
+- Paper Plane (equal parts bourbon, Aperol, Amaro Nonino, lemon): Aperol orange + bourbon amber = #c06828
+- Jungle Bird (rum, Campari, pineapple, lime, simple): Campari red + pineapple gold = #b04020
 - Penicillin (scotch, lemon, honey, ginger): amber honey = #c8901a
 - Mai Tai (rum, lime, orgeat, orange curaçao): golden orange = #e8a030`;
 
