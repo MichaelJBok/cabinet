@@ -19,25 +19,32 @@ export default async function handler(req, res) {
 }
 Use null oz + label for dashes/pinches. Use numeric oz for all other ingredients. Be precise with classic recipes.`;
 
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });
+
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5",
         max_tokens: 1000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
     const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data });
+    if (!response.ok) {
+      console.error("Anthropic API error:", JSON.stringify(data));
+      return res.status(response.status).json({ error: data?.error?.message || JSON.stringify(data) });
+    }
     res.json(data);
   } catch (e) {
+    console.error("autofill exception:", e.message);
     res.status(500).json({ error: e.message });
   }
 }

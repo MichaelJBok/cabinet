@@ -1382,11 +1382,11 @@ export default function CocktailGuide() {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ name })
       });
-      if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "API error " + res.status);
       const text = data.content?.[0]?.text || "";
       const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("No JSON in response");
+      if (!jsonMatch) throw new Error("Bad response: " + text.slice(0, 100));
       const recipe = JSON.parse(jsonMatch[0]);
 
       const glassMap = {"rocks":"Rocks","coupe":"Coupe","martini":"Martini","highball":"Highball",
@@ -1418,7 +1418,7 @@ export default function CocktailGuide() {
         liquid: recipe.color || "#c8622a",
       }));
     } catch(e) {
-      setAutofillError("Couldn't autofill — check the name and try again.");
+      setAutofillError(e.message || "Couldn't autofill — check the name and try again.");
       console.error(e);
     }
     setAutofilling(false);
