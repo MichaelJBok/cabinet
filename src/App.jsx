@@ -286,8 +286,8 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
     const clipId   = "clip-" + name.replace(/[^a-zA-Z0-9]/g,"") + "-" + size;
     const clipUrl  = "url(#" + clipId + ")";
     const mPts     = (cx-bowlW) + "," + bowlTop + " " + (cx+bowlW) + "," + bowlTop + " " + cx + "," + bowlMid;
-    const cPath    = "M" + (cx-bowlW) + "," + bowlTop + " Q" + (cx-bowlW) + "," + (bowlMid*0.7) + " " + cx + "," + bowlMid + " Q" + (cx+bowlW) + "," + (bowlMid*0.7) + " " + (cx+bowlW) + "," + bowlTop + " Z";
-    const cOutline = "M" + (cx-bowlW) + "," + bowlTop + " Q" + (cx-bowlW) + "," + (bowlMid*0.75) + " " + cx + "," + bowlMid + " Q" + (cx+bowlW) + "," + (bowlMid*0.75) + " " + (cx+bowlW) + "," + bowlTop + " Z";
+    const cPath    = "M" + (cx-bowlW) + "," + bowlTop + " Q" + (cx-bowlW) + "," + (bowlMid*0.75) + " " + cx + "," + bowlMid + " Q" + (cx+bowlW) + "," + (bowlMid*0.75) + " " + (cx+bowlW) + "," + bowlTop + " Z";
+    const cOutline = cPath;
     // Garnish sits on the right rim edge
     const gRimX = cx + bowlW * 0.75;
     const gRimY = bowlTop;
