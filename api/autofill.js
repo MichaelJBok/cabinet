@@ -4,13 +4,13 @@ export default async function handler(req, res) {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "No name provided" });
 
-  const prompt = `You are a cocktail expert. Return a JSON object for the cocktail "${name}". Use ONLY this exact structure, no other text:
+  const prompt = `You are a cocktail expert and visual designer. Return a JSON object for the cocktail "${name}". Use ONLY this exact structure, no other text:
 {
   "name": "${name}",
   "glass": "one of: Rocks, Coupe, Martini, Highball, Flute, Wine, Mule, Hurricane, Shot, Snifter, Tiki, Nick & Nora",
   "garnish": "brief garnish description e.g. 'Orange peel', 'Lime wheel', 'Cherry', or empty string",
   "tags": ["1-3 tags from: Classic, Modern Classic, Sour, Spirit Forward, Bitter, Highball, Tropical, Creamy, Sparkling, Low-ABV, Mocktail"],
-  "color": "hex color representing the final liquid in the glass — see guide below",
+  "color": "hex color — see instructions below",
   "instructions": "2-3 sentence method. Start with technique (stir/shake/build). End with glass and garnish.",
   "ingredients": [
     {"name": "Spirit name", "oz": 1.5},
@@ -20,24 +20,38 @@ export default async function handler(req, res) {
   ]
 }
 
-COLOR GUIDE — pick the hex that best matches the finished drink's appearance:
-- Whiskey/bourbon neat or stirred (Manhattan, Old Fashioned): #c87820 to #a05010
-- Rum-forward (dark rum dominant): #8b4010
-- Aged spirit + vermouth (Boulevardier, Toronto): #c0622a
-- Campari/Aperol drinks (Negroni, Aperol Spritz): #e8442a or #f07030
-- Gin/vodka + citrus, shaken cloudy (Gimlet, Daiquiri, Cosmopolitan): #f5f0d8 to #fffde7
-- Gin/vodka clear, stirred (Martini, Gibson): #e8f4f8
-- Green/herbal (Last Word, Grasshopper, Midori): #90c840 to #60a830
-- Blue/purple (Aviation, Blue Lagoon): #8090e0 or #c060d0
-- Pink/rose (Clover Club, Aperol-based, rosé): #f0a0b0 to #e87890
-- Tropical/yellow (Mai Tai, Jungle Bird, Painkiller): #f0a830 to #e8c040
-- Deep red/burgundy (New York Sour, sangria): #901830
-- Cream/white/frothy (Ramos Gin Fizz, White Russian, egg white drinks): #f5f0e8
-- Coffee/dark (Espresso Martini, Black Russian): #2a1a08
-- Citrus-forward sours, shaken with egg white: slightly cloudy version of base spirit color
-- Sparkling/light (French 75, Kir Royale): #f8f0e0 or #f5e8f0
+COLOR INSTRUCTIONS — this is critical, think carefully:
+Step 1: List the dominant colored ingredients and what color they contribute:
+- Campari → deep red #e8241a
+- Aperol → bright orange #f06020  
+- Yellow Chartreuse → bright yellow-green #d4e020
+- Green Chartreuse → vivid green #40c020
+- Midori → bright green #78c830
+- Blue Curaçao → bright blue #2060e0
+- Crème de Violette → purple #8040c0
+- Grenadine → red #cc2040
+- Falernum → pale yellow #f0e880
+- Pineapple juice → golden yellow #f0c030
+- Orange juice → orange #f07820
+- Lime juice → pale yellow-green (very light, nearly clear)
+- Lemon juice → pale yellow (very light, nearly clear)
+- Aged rum / bourbon / scotch / brandy → amber #c07820
+- Dark rum → dark brown #6b3010
+- Coffee liqueur / espresso → near black #1a0a04
+- Elderflower liqueur / dry vermouth / gin / vodka / white rum / tequila / mezcal → nearly clear, contributes no color
 
-Think carefully about what the drink actually looks like in a glass. Campari turns drinks red-orange. Blue Curacao turns drinks blue. Midori turns drinks green. A shaken drink with citrus goes cloudy/pale. A stirred whiskey drink stays amber.`;
+Step 2: Blend the colors of the dominant ingredients proportionally to get the final drink color. A shaken drink will be slightly lighter/cloudier.
+
+Step 3: Output ONLY a saturated, visually appealing hex. Never output near-white or near-grey — even clear drinks photograph as a warm pale yellow (#f0e8c8) due to the glass. Minimum saturation 30%.
+
+Examples:
+- Naked and Famous (equal parts mezcal, Yellow Chartreuse, Aperol, lime): Aperol orange + Chartreuse yellow-green = warm coral-orange #e8782a
+- Negroni (gin, sweet vermouth, Campari): Campari red dominates = #d43020  
+- Last Word (equal parts gin, Green Chartreuse, maraschino, lime): Green Chartreuse dominates = #78b830
+- Paper Plane (equal parts bourbon, Aperol, Amaro Nonino, lemon): Aperol orange + bourbon amber = #e07830
+- Jungle Bird (rum, Campari, pineapple, lime, simple): Campari red + pineapple gold = #d04820
+- Penicillin (scotch, lemon, honey, ginger): amber honey = #c8901a
+- Mai Tai (rum, lime, orgeat, orange curaçao): golden orange = #e8a030`;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });
