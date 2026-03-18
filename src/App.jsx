@@ -314,7 +314,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <line x1={cx-bowlW} y1={bowlTop} x2={cx+bowlW} y2={bowlTop} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx} y1={bowlMid} x2={cx} y2={stemBot} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-baseW/2} y1={stemBot} x2={cx+baseW/2} y2={stemBot} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={cx-bowlW+2} y1={bowlTop+2} x2={cx-bowlW*0.5} y2={bowlMid*0.6} stroke="rgba(255,255,255,0.25)" strokeWidth="0.8"/>
+        
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
     );
@@ -343,7 +343,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         {vis.foam && <Foam fx={cx} fy={gy+gh-liqH+s*0.04} fw={gw*0.44}/>}
         <path d={outline} fill={glassFill} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={gx} y1={gy} x2={gx+gw} y2={gy} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={gx+5} y1={gy+4} x2={gx+9} y2={gy+gh-8} stroke="rgba(255,255,255,0.2)" strokeWidth="0.9"/>
+        
         {vis.bubbles && <Bubbles bx={gx+gw*0.7} by={gy+gh-liqH+s*0.1}/>}
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
@@ -382,7 +382,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         {isMule      && <path d={muleHandle} fill="none" stroke={glassStroke} strokeWidth="2"/>}
         <rect x={gx} y={gy} width={gw} height={gh} rx={isMule?4:2} fill={glassFill} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={gx} y1={gy} x2={gx+gw} y2={gy} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={gx+4} y1={gy+4} x2={gx+6} y2={gy+gh-8} stroke="rgba(255,255,255,0.18)" strokeWidth="0.9"/>
+        
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
     );
@@ -407,7 +407,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <line x1={fx} y1={fy} x2={fx+fw} y2={fy} stroke={glassStroke} strokeWidth="1.5"/>
         <line x1={cx} y1={fy+fh*0.78} x2={cx} y2={stemBot} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-baseW/2} y1={stemBot} x2={cx+baseW/2} y2={stemBot} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={fx+3} y1={fy+4} x2={fx+5} y2={fy+fh*0.6} stroke="rgba(255,255,255,0.2)" strokeWidth="0.8"/>
+        
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
     );
@@ -432,7 +432,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <line x1={cx-s*0.08} y1={bowlBot} x2={cx+s*0.08} y2={bowlBot} stroke={glassStroke} strokeWidth="1"/>
         <line x1={cx} y1={bowlBot} x2={cx} y2={stemBot} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-baseW/2} y1={stemBot} x2={cx+baseW/2} y2={stemBot} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={cx-bowlW+3} y1={bowlTop+4} x2={cx-bowlW*0.55} y2={bowlBot*0.6} stroke="rgba(255,255,255,0.2)" strokeWidth="0.8"/>
+        
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
     );
@@ -471,7 +471,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         {vis.ice  && <IceCubes x1={cx-s*0.18} y1={hb-s*0.22} x2={cx+s*0.06} y2={hb-s*0.28} x3={cx-s*0.04} y3={hb-s*0.19}/>}
         <path d={hPath} fill={glassFill} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-rimW} y1={ht} x2={cx+rimW} y2={ht} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={cx-rimW+3} y1={ht+3} x2={cx-neckW+2} y2={neckY-4} stroke="rgba(255,255,255,0.2)" strokeWidth="0.8"/>
+        
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
     );
@@ -549,7 +549,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <line x1={cx-s*0.06} y1={bowlBot} x2={cx+s*0.06} y2={bowlBot} stroke={glassStroke} strokeWidth="1"/>
         <line x1={cx} y1={bowlBot} x2={cx} y2={stemBot} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-baseW/2} y1={stemBot} x2={cx+baseW/2} y2={stemBot} stroke={glassStroke} strokeWidth="1.5"/>
-        <line x1={cx-bowlW+2} y1={bowlTop+3} x2={cx-bowlW*0.5} y2={bowlBot*0.58} stroke="rgba(255,255,255,0.22)" strokeWidth="0.7"/>
+        
         <Garnish type={vis.garnish} rimX={gRimX} rimY={gRimY}/>
       </svg>
     );
