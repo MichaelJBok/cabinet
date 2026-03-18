@@ -1377,38 +1377,18 @@ export default function CocktailGuide() {
     setAutofilling(true);
     setAutofillError(null);
     try {
-      const prompt = `You are a cocktail expert. Return a JSON object for the cocktail "${name}". Use ONLY this exact structure, no other text:
-{
-  "name": "${name}",
-  "glass": "Rocks|Coupe|Martini|Highball|Flute|Wine|Mule|Hurricane|Shot|Snifter|Tiki|Nick & Nora",
-  "garnish": "brief garnish description or empty string",
-  "tags": ["array of 1-3 tags from: Classic, Modern Classic, Sour, Spirit Forward, Bitter, Highball, Tropical, Creamy, Sparkling, Low-ABV, Mocktail"],
-  "color": "a hex color representing the liquid color, e.g. #c8622a for a negroni, #fffde7 for a gimlet",
-  "instructions": "2-3 sentence method. Start with the technique (stir/shake/build). End with glass and garnish.",
-  "ingredients": [
-    {"name": "Spirit or ingredient name", "oz": 1.5, "unit": "oz"},
-    {"name": "Another ingredient", "oz": 0.75, "unit": "oz"},
-    {"name": "Dash ingredient", "oz": null, "unit": "dash", "label": "2 dashes"}
-  ]
-}
-For ingredients: use oz values for measurable liquids (as numbers), use null oz + label for dashes/pinches/garnishes. Be precise with classic recipes.`;
-
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/autofill", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }]
-        })
+        body: JSON.stringify({ name })
       });
+      if (!res.ok) throw new Error("API error " + res.status);
       const data = await res.json();
       const text = data.content?.[0]?.text || "";
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("No JSON in response");
       const recipe = JSON.parse(jsonMatch[0]);
 
-      // Map glass label to key
       const glassMap = {"rocks":"Rocks","coupe":"Coupe","martini":"Martini","highball":"Highball",
         "flute":"Flute","wine":"Wine","mule":"Mule","hurricane":"Hurricane","shot":"Shot",
         "snifter":"Snifter","tiki":"Tiki","nick & nora":"Nick & Nora","nick":"Nick & Nora"};
