@@ -8,16 +8,22 @@ export default async function handler(req, res) {
 {
   "name": "${name}",
   "glass": "one of: Rocks, Coupe, Martini, Highball, Flute, Wine, Mule, Hurricane, Shot, Snifter, Tiki, Nick & Nora",
-  "garnish": "brief garnish description or empty string",
+  "garnish": "brief garnish description e.g. 'Orange peel', 'Lime wheel', 'Cherry', or empty string",
   "tags": ["1-3 tags from: Classic, Modern Classic, Sour, Spirit Forward, Bitter, Highball, Tropical, Creamy, Sparkling, Low-ABV, Mocktail"],
-  "color": "hex color representing the liquid, e.g. #c8622a for a negroni",
+  "color": "hex color representing the liquid, e.g. #c8622a for a negroni, #f5e6a0 for a gimlet",
   "instructions": "2-3 sentence method. Start with technique (stir/shake/build). End with glass and garnish.",
   "ingredients": [
-    {"name": "ingredient name", "oz": 1.5, "unit": "oz"},
-    {"name": "dash ingredient", "oz": null, "unit": "dash", "label": "2 dashes"}
+    {"name": "Spirit name", "oz": 1.5},
+    {"name": "Modifier", "oz": 0.75},
+    {"name": "Angostura Bitters", "oz": null, "label": "2 dashes"},
+    {"name": "Absinthe", "oz": null, "label": "rinse"}
   ]
 }
-Use null oz + label for dashes/pinches. Use numeric oz for all other ingredients. Be precise with classic recipes.`;
+Rules for ingredients:
+- Use "oz" (number) for all measurable liquids
+- Use oz: null and a "label" string for dashes (e.g. "2 dashes"), rinses (e.g. "rinse"), pinches, or garnish ingredients
+- Do not include a garnish as an ingredient if it is already in the garnish field
+- Be precise with classic recipes`;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });

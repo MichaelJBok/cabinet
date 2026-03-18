@@ -1371,6 +1371,27 @@ export default function CocktailGuide() {
     };
   };
 
+  const inferGarnishType = (garnishText) => {
+    if (!garnishText) return null;
+    const g = garnishText.toLowerCase();
+    if (g.includes("orange")) return "orange";
+    if (g.includes("lemon")) return "lemon";
+    if (g.includes("lime")) return "lime";
+    if (g.includes("grapefruit")) return "grapefruit";
+    if (g.includes("cherry")) return "cherry";
+    if (g.includes("mint")) return "mint";
+    if (g.includes("olive")) return "olive";
+    if (g.includes("pineapple")) return "pineapple";
+    if (g.includes("berry") || g.includes("blackberr") || g.includes("raspberr")) return "berry";
+    if (g.includes("rosemary")) return "rosemary";
+    if (g.includes("cucumber")) return "cucumber";
+    if (g.includes("ginger")) return "ginger";
+    if (g.includes("nutmeg")) return "nutmeg";
+    if (g.includes("salt")) return "salt";
+    if (g.includes("sugar")) return "sugar";
+    return null;
+  };
+
   const autofillRecipe = async () => {
     const name = editForm?.name?.trim();
     if (!name) return;
@@ -1395,13 +1416,16 @@ export default function CocktailGuide() {
       const glassLabel = recipe.glass || "Rocks";
       const glassKey = Object.keys(glassMap).find(k => glassLabel.toLowerCase().includes(k)) || "rocks";
 
-      const ingredients = (recipe.ingredients || []).map((ing, idx) => ({
-        id: Date.now() + idx,
-        name: ing.name,
-        oz: ing.oz ?? null,
-        unit: ing.unit || "oz",
-        label: ing.label || null,
-      }));
+      const ingredients = (recipe.ingredients || []).map((ing, idx) => {
+        const hasOz = ing.oz !== null && ing.oz !== undefined && ing.oz > 0;
+        const displayAmt = !hasOz ? (ing.label || (ing.unit && ing.unit !== "oz" ? ing.unit : null)) : null;
+        return {
+          id: Date.now() + idx,
+          name: ing.name,
+          oz: hasOz ? ing.oz : null,
+          displayAmt,
+        };
+      });
 
       setEditForm(prev => ({
         ...prev,
@@ -1416,6 +1440,7 @@ export default function CocktailGuide() {
         ...prev,
         glass: glassKey,
         liquid: recipe.color || "#c8622a",
+        garnish: inferGarnishType(recipe.garnish),
       }));
     } catch(e) {
       setAutofillError(e.message || "Couldn't autofill — check the name and try again.");
