@@ -1157,6 +1157,8 @@ export default function CocktailGuide() {
   const [ingFilter, setIngFilter] = useState(null);
   const [tagFilters, setTagFilters] = useState(new Set());
   const [editForm, setEditForm] = useState(null);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillError, setAutofillError] = useState(null);
   const [newIngName, setNewIngName] = useState("");
   const [newIngAmt, setNewIngAmt] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
@@ -1368,6 +1370,80 @@ export default function CocktailGuide() {
       crushed: false, layered: false, salt: false, sugar: false,
     };
   };
+
+  const autofillRecipe = async () => {
+    const name = editForm?.name?.trim();
+    if (!name) return;
+    setAutofilling(true);
+    setAutofillError(null);
+    try {
+      const prompt = `You are a cocktail expert. Return a JSON object for the cocktail "${name}". Use ONLY this exact structure, no other text:
+{
+  "name": "${name}",
+  "glass": "Rocks|Coupe|Martini|Highball|Flute|Wine|Mule|Hurricane|Shot|Snifter|Tiki|Nick & Nora",
+  "garnish": "brief garnish description or empty string",
+  "tags": ["array of 1-3 tags from: Classic, Modern Classic, Sour, Spirit Forward, Bitter, Highball, Tropical, Creamy, Sparkling, Low-ABV, Mocktail"],
+  "color": "a hex color representing the liquid color, e.g. #c8622a for a negroni, #fffde7 for a gimlet",
+  "instructions": "2-3 sentence method. Start with the technique (stir/shake/build). End with glass and garnish.",
+  "ingredients": [
+    {"name": "Spirit or ingredient name", "oz": 1.5, "unit": "oz"},
+    {"name": "Another ingredient", "oz": 0.75, "unit": "oz"},
+    {"name": "Dash ingredient", "oz": null, "unit": "dash", "label": "2 dashes"}
+  ]
+}
+For ingredients: use oz values for measurable liquids (as numbers), use null oz + label for dashes/pinches/garnishes. Be precise with classic recipes.`;
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.[0]?.text || "";
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("No JSON in response");
+      const recipe = JSON.parse(jsonMatch[0]);
+
+      // Map glass label to key
+      const glassMap = {"rocks":"Rocks","coupe":"Coupe","martini":"Martini","highball":"Highball",
+        "flute":"Flute","wine":"Wine","mule":"Mule","hurricane":"Hurricane","shot":"Shot",
+        "snifter":"Snifter","tiki":"Tiki","nick & nora":"Nick & Nora","nick":"Nick & Nora"};
+      const glassLabel = recipe.glass || "Rocks";
+      const glassKey = Object.keys(glassMap).find(k => glassLabel.toLowerCase().includes(k)) || "rocks";
+
+      const ingredients = (recipe.ingredients || []).map((ing, idx) => ({
+        id: Date.now() + idx,
+        name: ing.name,
+        oz: ing.oz ?? null,
+        unit: ing.unit || "oz",
+        label: ing.label || null,
+      }));
+
+      setEditForm(prev => ({
+        ...prev,
+        glass: glassLabel,
+        garnish: recipe.garnish || "",
+        tags: recipe.tags || [],
+        color: recipe.color || "#c8622a",
+        instructions: recipe.instructions || "",
+        ingredients,
+      }));
+      setEditVis(prev => ({
+        ...prev,
+        glass: glassKey,
+        liquid: recipe.color || "#c8622a",
+      }));
+    } catch(e) {
+      setAutofillError("Couldn't autofill — check the name and try again.");
+      console.error(e);
+    }
+    setAutofilling(false);
+  };
+
   const openEdit = (r) => {
     setEditForm({...r, ingredients: r.ingredients.map(i => ({...i}))});
     const existing = customVisuals[r.id] || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
@@ -2256,6 +2332,32 @@ export default function CocktailGuide() {
                     background:t.inputBg,color:t.textPrimary,fontSize:13,fontFamily:"inherit",outline:"none",boxSizing:"border-box",
                   }}/>
                 </div>
+                {/* Autofill */}
+                {view === "create" && (
+                  <div style={{marginBottom:16}}>
+                    <button onClick={autofillRecipe} disabled={autofilling || !editForm?.name?.trim()} style={{
+                      display:"flex", alignItems:"center", gap:8,
+                      padding:"9px 18px", borderRadius:12,
+                      border:"1px solid " + (lightMode ? "rgba(180,120,60,0.35)" : "rgba(255,200,100,0.3)"),
+                      background: autofilling ? "transparent" : (lightMode ? "rgba(180,120,60,0.08)" : "rgba(255,200,100,0.07)"),
+                      color: (!editForm?.name?.trim()) ? t.textMuted : t.accent,
+                      cursor: (!editForm?.name?.trim() || autofilling) ? "default" : "pointer",
+                      fontSize:12, fontFamily:"inherit", fontWeight:"500",
+                      opacity: (!editForm?.name?.trim()) ? 0.45 : 1,
+                    }}>
+                      {autofilling
+                        ? <><span style={{fontSize:15}}>⏳</span> Asking Claude…</>
+                        : <><span style={{fontSize:15}}>✨</span> Auto-fill with Claude</>
+                      }
+                    </button>
+                    {autofillError && <div style={{marginTop:6,fontSize:11,color:t.dangerColor}}>{autofillError}</div>}
+                    {!autofilling && !autofillError && editForm?.name?.trim() && (
+                      <div style={{marginTop:5,fontSize:10,color:t.textMuted}}>
+                        Type a cocktail name above, then auto-fill ingredients, glass, and instructions.
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Tags picker */}
                 <div style={{marginBottom:12}}>
                   <label style={{fontSize:9,letterSpacing:2,color:t.textSecond,textTransform:"uppercase",display:"block",marginBottom:6}}>Tags</label>
