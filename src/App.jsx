@@ -1349,7 +1349,7 @@ export default function CocktailGuide() {
   };
 
 
-  const openDetail = (r) => { setActiveRecipe(r); setNotesDraft(r.notes); setView("detail"); };
+  const openDetail = (r) => { setActiveRecipe(r); setNotesDraft(r.notes); setView("detail"); window.scrollTo({top:0,behavior:"instant"}); };
   const defaultVis = (glass, color) => {
     const gl = (glass||"").toLowerCase();
     return {
@@ -2171,7 +2171,7 @@ export default function CocktailGuide() {
           {/* DETAIL */}
           {view === "detail" && activeRecipe && (
             <div style={{maxWidth:620,margin:"0 auto",width:"100%",boxSizing:"border-box",padding:"0 2px"}}>
-              <button onClick={() => setView("browse")} style={{
+              <button onClick={() => { setView("browse"); window.scrollTo({top:0,behavior:"instant"}); }} style={{
                 display:"inline-flex", alignItems:"center", gap:6,
                 background:t.cardBg, border:"1px solid "+t.cardBorder,
                 color:t.textSecond, cursor:"pointer", fontSize:12,
