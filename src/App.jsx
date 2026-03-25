@@ -1606,7 +1606,7 @@ export default function CocktailGuide() {
   // Unit toggle + servings controls (shown in detail view)
   const VolumeControls = () => (
     <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:14,
-      padding:"9px 14px",borderRadius:10,background:t.sectionBg,border:"1px solid rgba(255,200,100,0.15)"}}>
+      padding:"9px 14px",borderRadius:10,background:t.sectionBg,border:"1px solid "+t.panelBorder}}>
       {/* Unit toggle */}
       <div style={{display:"flex",borderRadius:8,overflow:"hidden",border:"1px solid "+t.inputBorder}}>
         {["oz","ml"].map(u => (
@@ -2199,7 +2199,7 @@ export default function CocktailGuide() {
                   </div>
                   <div style={{display:"flex",gap:4,alignItems:"center"}}>
                     <button onClick={() => openVariant(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(100,200,255,0.4)",background:"rgba(100,200,255,0.08)",color:t.variantColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap",lineHeight:"normal"}}>Variant</button>
-                    <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(255,200,100,0.4)",background:"rgba(255,215,0,0.1)",color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
+                    <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.accentBorder,background:t.accentBg,color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
                     <button onClick={() => deleteRecipe(activeRecipe.id)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
                   </div>
                 </div>
@@ -2281,7 +2281,7 @@ export default function CocktailGuide() {
                       borderRadius:9,padding:10,color:t.textPrimary,fontSize:13,fontFamily:"inherit",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
                   <button onClick={saveNotes} style={{
                     marginTop:6, padding:"6px 16px", borderRadius:12, fontSize:12, fontFamily:"inherit",
-                    border:"1px solid "+(noteSaved ? "rgba(100,200,100,0.6)" : "rgba(255,200,100,0.4)"),
+                    border:"1px solid "+(noteSaved ? (lightMode?"rgba(60,160,60,0.6)":"rgba(100,200,100,0.6)") : t.accentBorder),
                     background: noteSaved ? "rgba(100,200,100,0.15)" : t.accentBg,
                     color: noteSaved ? "#6dbb6d" : t.accent,
                     cursor:"pointer", transition:"all 0.3s ease",
@@ -2515,7 +2515,7 @@ export default function CocktailGuide() {
 
                 {/* ── Visual Editor ── */}
                 {editVis && (
-                  <div style={{marginBottom:18,padding:16,borderRadius:12,background:"rgba(255,215,0,0.05)",border:"1px solid "+t.panelBorder}}>
+                  <div style={{marginBottom:18,padding:16,borderRadius:12,background:t.accentBg,border:"1px solid "+t.accentBorder}}>
                     <div style={{fontSize:9,letterSpacing:2,color:t.accent,textTransform:"uppercase",marginBottom:12}}>🍹 Illustration</div>
 
                     {/* Live preview */}
@@ -2556,7 +2556,7 @@ export default function CocktailGuide() {
                         {COLORS.map(c => (
                           <button key={c} onClick={() => { setEditForm(prev => ({...prev,color:c})); setEditVis(prev => ({...prev,liquid:c})); }} style={{
                             width:26,height:26,borderRadius:"50%",background:c,border:"2px solid",
-                            borderColor: editForm.color===c ? "#ffd700" : "transparent",cursor:"pointer",
+                            borderColor: editForm.color===c ? t.accent : "transparent",cursor:"pointer",
                           }}/>
                         ))}
                         {/* Free-pick swatch */}
@@ -2565,7 +2565,7 @@ export default function CocktailGuide() {
                             width:26,height:26,borderRadius:"50%",
                             background: COLORS.includes(editForm.color) ? "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" : editForm.color,
                             border:"2px solid",
-                            borderColor: !COLORS.includes(editForm.color) ? "#ffd700" : "transparent",
+                            borderColor: !COLORS.includes(editForm.color) ? t.accent : "transparent",
                             cursor:"pointer", overflow:"hidden",
                             display:"flex",alignItems:"center",justifyContent:"center",
                             fontSize:11,
@@ -2659,7 +2659,7 @@ export default function CocktailGuide() {
                     <div style={{
                       padding:"14px", borderRadius:10,
                       background:t.rowBg,
-                      border:"1px solid rgba(255,215,0,0.35)",
+                      border:"1px solid "+t.accentBorder,
                       marginTop:4,
                     }}>
                       <div style={{fontSize:11,color:t.accent,marginBottom:8,fontWeight:"bold"}}>
@@ -2672,9 +2672,9 @@ export default function CocktailGuide() {
                         {Object.keys(dedupedMixerCategories).map(cat => (
                           <button key={cat} onClick={() => setNewIngPromptCat(cat)} style={{
                             padding:"5px 10px", borderRadius:10, border:"1px solid",
-                            borderColor: newIngPromptCat===cat ? "#ffd700" : "rgba(255,200,100,0.3)",
+                            borderColor: newIngPromptCat===cat ? t.accent : t.btnBorder,
                             background: newIngPromptCat===cat ? t.accentBg : t.panelBg,
-                            color: newIngPromptCat===cat ? "#ffd700" : "#c9a96e",
+                            color: newIngPromptCat===cat ? t.accent : t.textSecond,
                             cursor:"pointer", fontSize:11, fontFamily:"inherit",
                           }}>{cat}</button>
                         ))}
@@ -2709,7 +2709,7 @@ export default function CocktailGuide() {
                           flex:1,padding:"7px 9px",borderRadius:7,border:"1px solid "+t.inputBorder,
                           background:t.inputBg,color:t.textPrimary,fontSize:11,fontFamily:"inherit",outline:"none",
                         }}/>
-                      <button onClick={addIngredientToForm} style={{padding:"7px 12px",borderRadius:7,border:"1px solid rgba(255,200,100,0.4)",background:t.accentBg,color:t.accent,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>Add</button>
+                      <button onClick={addIngredientToForm} style={{padding:"7px 12px",borderRadius:7,border:"1px solid "+t.accentBorder,background:t.accentBg,color:t.accent,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>Add</button>
                     </div>
                   )}
                 </div>
