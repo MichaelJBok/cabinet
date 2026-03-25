@@ -1472,7 +1472,7 @@ export default function CocktailGuide() {
     const newId = Date.now();
     const form = { ...r, ingredients: r.ingredients.map(i => ({...i})),
       id: newId, name: r.name + " (Variant)", favorite: false, verified: false, notes: "",
-      variantOf: rootId, variantName: "" };
+      variantOf: rootId, variantName: "", created_by: userName || null };
     setEditForm(form);
     const existingVis = customVisuals[r.id] || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
     setEditVis({...existingVis});
