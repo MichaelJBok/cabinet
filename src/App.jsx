@@ -1158,6 +1158,8 @@ export default function CocktailGuide() {
   const [tagFilters, setTagFilters] = useState(new Set());
   const [editForm, setEditForm] = useState(null);
   const [autofilling, setAutofilling] = useState(false);
+  const [userName, setUserName] = useState(() => localStorage.getItem("cabinet_username") || "");
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [autofillError, setAutofillError] = useState(null);
   const [newIngName, setNewIngName] = useState("");
   const [newIngAmt, setNewIngAmt] = useState("");
@@ -1458,7 +1460,7 @@ export default function CocktailGuide() {
 
   const openCreate = () => {
     const form = { id: Date.now(), name: "", favorite: false, verified: false, notes: "", tags: ["Classic"],
-      ingredients: [], instructions: "", garnish: "", glass: "Rocks", color: "#e8eaf6" };
+      ingredients: [], instructions: "", garnish: "", glass: "Rocks", color: "#e8eaf6", created_by: userName || null };
     setEditForm(form);
     setEditVis(defaultVis("Rocks", "#e8eaf6"));
     setNewIngName(""); setNewIngAmt("");
@@ -1735,6 +1737,14 @@ export default function CocktailGuide() {
             background: lightMode ? t.accentBg : "transparent",
             color:t.textSecond, cursor:"pointer", fontSize:13, fontFamily:"inherit",
           }}>{lightMode ? "🌙" : "☀️"}</button>
+          {/* Name */}
+          <button onClick={() => setShowNamePrompt(true)} title="Set your display name" style={{
+            padding:"6px 10px", borderRadius:16, border:"1px solid "+t.btnBorder,
+            background: userName ? t.accentBg : "transparent",
+            color: userName ? t.accent : t.textMuted,
+            cursor:"pointer", fontSize:11, fontFamily:"inherit", maxWidth:90,
+            overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap",
+          }}>{userName || "👤"}</button>
           {/* Reset */}
           <button onClick={handleReset} title="Reset to factory defaults" style={{
             padding:"6px 8px", borderRadius:16, border:"1px solid rgba(255,100,100,0.25)",
@@ -1743,6 +1753,42 @@ export default function CocktailGuide() {
           }}>↺</button>
         </div>
       </header>
+
+      {/* Name prompt overlay */}
+      {showNamePrompt && (
+        <div style={{
+          position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:1000,
+          display:"flex", alignItems:"center", justifyContent:"center",
+        }} onClick={() => setShowNamePrompt(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background:t.panelBg, border:"1px solid "+t.panelBorder, borderRadius:16,
+            padding:28, minWidth:280, boxShadow:"0 12px 48px rgba(0,0,0,0.4)",
+          }}>
+            <div style={{fontSize:14, fontWeight:"600", color:t.textPrimary, marginBottom:6}}>Your display name</div>
+            <div style={{fontSize:11, color:t.textMuted, marginBottom:14}}>
+              Shown on recipes you create.
+            </div>
+            <input
+              autoFocus
+              value={userName}
+              onChange={e => setUserName(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") { localStorage.setItem("cabinet_username", userName); setShowNamePrompt(false); }}}
+              placeholder="e.g. Michael"
+              style={{
+                width:"100%", padding:"8px 11px", borderRadius:8,
+                border:"1px solid "+t.inputBorder, background:t.inputBg,
+                color:t.textPrimary, fontSize:13, fontFamily:"inherit",
+                outline:"none", boxSizing:"border-box", marginBottom:12,
+              }}
+            />
+            <button onClick={() => { localStorage.setItem("cabinet_username", userName); setShowNamePrompt(false); }} style={{
+              width:"100%", padding:"9px", borderRadius:10,
+              border:"1px solid "+t.accentBorder, background:t.accentBg,
+              color:t.accent, cursor:"pointer", fontSize:13, fontFamily:"inherit",
+            }}>Save</button>
+          </div>
+        </div>
+      )}
 
       {/* Zoom wrapper — CSS zoom affects layout unlike transform:scale */}
       <div style={{ flex:1, overflow:"auto" }}>
@@ -2041,7 +2087,8 @@ export default function CocktailGuide() {
                             const ERA = ["Classic","Modern Classic"];
                             const primary = tags.filter(t => !ERA.includes(t));
                             const era = tags.filter(t => ERA.includes(t));
-                            return [...primary, ...era].join(" · ");
+                            const tagStr = [...primary, ...era].join(" · ");
+                            return r.created_by ? <>{tagStr}{tagStr && " · "}<span style={{fontStyle:"normal",opacity:0.6}}>{r.created_by}</span></> : tagStr;
                           })()}
                         </div>
                         {(() => {
@@ -2212,6 +2259,11 @@ export default function CocktailGuide() {
                     <h1 style={{margin:0,fontSize:26,color:t.textPrimary,fontFamily:fontDisplay,fontWeight:"400"}}>{activeRecipe.name}</h1>
                     <div style={{fontSize:14,color:t.textSecond,fontStyle:"italic",marginTop:4,fontFamily:fontDisplay}}>
                       {activeRecipe.glass} glass{activeRecipe.garnish ? " · " + activeRecipe.garnish : ""}
+                      {activeRecipe.created_by && (
+                        <span style={{marginLeft:8, fontSize:12, color:t.textMuted, fontStyle:"normal", fontFamily:"'DM Sans', sans-serif"}}>
+                          — {activeRecipe.created_by}
+                        </span>
+                      )}
                     </div>
                     <div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
                       {(activeRecipe.tags||[]).map(tag => (
