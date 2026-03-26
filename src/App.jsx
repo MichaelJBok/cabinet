@@ -1120,7 +1120,6 @@ export default function CocktailGuide() {
     allMixers, setAllMixers,
     mixerCategories, setMixerCategories,
     selectedMixers, setSelectedMixers,
-    lightMode, setLightMode,
     filterMode, setFilterMode,
     sortOrder, setSortOrder,
     createRecipe, updateRecipe, deleteRecipe: deleteRecipeDB,
@@ -1131,6 +1130,16 @@ export default function CocktailGuide() {
     resetAll,
     loading, error: dbError,
   } = useSupabase();
+
+  // Light mode — local state persisted to localStorage
+  const [lightMode, setLightModeRaw] = useState(() =>
+    localStorage.getItem("cabinet_lightmode") === "true"
+  );
+  const setLightMode = (val) => {
+    const v = typeof val === "function" ? val(lightMode) : val;
+    setLightModeRaw(v);
+    localStorage.setItem("cabinet_lightmode", String(v));
+  };
 
   // Globally deduplicated mixer categories — prevents duplicate React keys
   const dedupedMixerCategories = useMemo(() => {
