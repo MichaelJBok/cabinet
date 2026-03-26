@@ -1124,6 +1124,9 @@ export default function CocktailGuide() {
     filterMode, setFilterMode,
     sortOrder, setSortOrder,
     createRecipe, updateRecipe, deleteRecipe: deleteRecipeDB,
+    toggleFavoriteDB, toggleVerifiedDB, toggleWantToTryDB, saveNotesDB,
+    saveSelectedMixers, saveBarFilterActive,
+    userId, getProfile, saveProfile, signOut,
     addMixer,
     resetAll,
     loading, error: dbError,
@@ -1158,7 +1161,7 @@ export default function CocktailGuide() {
   const [tagFilters, setTagFilters] = useState(new Set());
   const [editForm, setEditForm] = useState(null);
   const [autofilling, setAutofilling] = useState(false);
-  const [userName, setUserName] = useState(() => localStorage.getItem("cabinet_username") || "");
+  const [userName, setUserName] = useState("");
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [autofillError, setAutofillError] = useState(null);
   const [newIngName, setNewIngName] = useState("");
@@ -1327,25 +1330,50 @@ export default function CocktailGuide() {
     return () => ro.disconnect();
   }, []);
 
-  // Persistence handled by useSupabase hook
+  // Save bar state to Supabase when it changes
+  useEffect(() => {
+    if (!userId) return;
+    saveSelectedMixers(selectedMixers);
+  }, [selectedMixers, userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    saveBarFilterActive(barFilterActive);
+  }, [barFilterActive, userId]);
+
+  // Load profile display name when userId is available
+  useEffect(() => {
+    if (!userId) return;
+    getProfile().then(name => { if (name) setUserName(name); });
+  }, [userId]);
 
   const toggleFavorite = (id) => {
-    setRecipes(prev => prev.map(r => r.id === id ? {...r, favorite: !r.favorite} : r));
-    if (activeRecipe?.id === id) setActiveRecipe(prev => ({...prev, favorite: !prev.favorite}));
+    const recipe = recipes.find(r => r.id === id);
+    const newVal = !recipe?.favorite;
+    setRecipes(prev => prev.map(r => r.id === id ? {...r, favorite: newVal} : r));
+    if (activeRecipe?.id === id) setActiveRecipe(prev => ({...prev, favorite: newVal}));
+    toggleFavoriteDB(id, newVal);
   };
   const toggleVerified = (id) => {
-    setRecipes(prev => prev.map(r => r.id === id ? {...r, verified: !r.verified} : r));
-    if (activeRecipe?.id === id) setActiveRecipe(prev => ({...prev, verified: !prev.verified}));
+    const recipe = recipes.find(r => r.id === id);
+    const newVal = !recipe?.verified;
+    setRecipes(prev => prev.map(r => r.id === id ? {...r, verified: newVal} : r));
+    if (activeRecipe?.id === id) setActiveRecipe(prev => ({...prev, verified: newVal}));
+    toggleVerifiedDB(id, newVal);
   };
   const toggleWantToTry = (id) => {
-    setRecipes(prev => prev.map(r => r.id === id ? {...r, wantToTry: !r.wantToTry} : r));
-    if (activeRecipe?.id === id) setActiveRecipe(prev => ({...prev, wantToTry: !prev.wantToTry}));
+    const recipe = recipes.find(r => r.id === id);
+    const newVal = !recipe?.wantToTry;
+    setRecipes(prev => prev.map(r => r.id === id ? {...r, wantToTry: newVal} : r));
+    if (activeRecipe?.id === id) setActiveRecipe(prev => ({...prev, wantToTry: newVal}));
+    toggleWantToTryDB(id, newVal);
   };
 
   const saveNotes = () => {
     const updated = {...activeRecipe, notes: notesDraft};
     setRecipes(prev => prev.map(r => r.id === activeRecipe.id ? updated : r));
     setActiveRecipe(updated);
+    saveNotesDB(activeRecipe.id, notesDraft);
     setNoteSaved(true);
     setTimeout(() => setNoteSaved(false), 2000);
   };
@@ -1745,6 +1773,12 @@ export default function CocktailGuide() {
             cursor:"pointer", fontSize:11, fontFamily:"inherit", maxWidth:90,
             overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap",
           }}>{userName || "👤"}</button>
+          {/* Sign out */}
+          <button onClick={signOut} title="Sign out" style={{
+            padding:"6px 10px", borderRadius:16, border:"1px solid "+t.btnBorder,
+            background:"transparent", color:t.textMuted,
+            cursor:"pointer", fontSize:11, fontFamily:"inherit",
+          }}>Sign out</button>
           {/* Reset */}
           <button onClick={handleReset} title="Reset to factory defaults" style={{
             padding:"6px 8px", borderRadius:16, border:"1px solid rgba(255,100,100,0.25)",
@@ -1772,7 +1806,7 @@ export default function CocktailGuide() {
               autoFocus
               value={userName}
               onChange={e => setUserName(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") { localStorage.setItem("cabinet_username", userName); setShowNamePrompt(false); }}}
+              onKeyDown={e => { if (e.key === "Enter") { saveProfile(userName); setShowNamePrompt(false); }}}
               placeholder="e.g. Michael"
               style={{
                 width:"100%", padding:"8px 11px", borderRadius:8,
@@ -1781,7 +1815,7 @@ export default function CocktailGuide() {
                 outline:"none", boxSizing:"border-box", marginBottom:12,
               }}
             />
-            <button onClick={() => { localStorage.setItem("cabinet_username", userName); setShowNamePrompt(false); }} style={{
+            <button onClick={() => { saveProfile(userName); setShowNamePrompt(false); }} style={{
               width:"100%", padding:"9px", borderRadius:10,
               border:"1px solid "+t.accentBorder, background:t.accentBg,
               color:t.accent, cursor:"pointer", fontSize:13, fontFamily:"inherit",
