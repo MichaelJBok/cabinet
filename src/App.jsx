@@ -1540,8 +1540,8 @@ export default function CocktailGuide() {
 
   // Returns all recipes in the same variant family as r (excluding r itself)
   const getVariants = (r) => {
-    const rootId = r.variantOf || r.id;
-    return recipes.filter(x => x.id !== r.id && (x.id === rootId || x.variantOf === rootId));
+    const rootId = Number(r.variantOf || r.id);
+    return recipes.filter(x => x.id !== r.id && (Number(x.id) === rootId || Number(x.variantOf) === rootId));
   };
 
   const addIngredientToForm = () => {
@@ -2529,7 +2529,7 @@ export default function CocktailGuide() {
                 {/* Variant label — only shown for variants */}
                 {/* ── Variant Linking ── */}
                 {(() => {
-                  const linkedRecipe = editForm.variantOf ? recipes.find(r => r.id === editForm.variantOf || (r.variantOf === editForm.variantOf && r.id !== editForm.id)) : null;
+                  const linkedRecipe = editForm.variantOf ? recipes.find(r => Number(r.id) === Number(editForm.variantOf) || (Number(r.variantOf) === Number(editForm.variantOf) && r.id !== editForm.id)) : null;
                   const rootRecipe = editForm.variantOf ? recipes.find(r => r.id === editForm.variantOf) : null;
                   return (
                     <div style={{marginBottom:12,padding:"12px 14px",borderRadius:9,background:t.variantBg,border:"1px solid rgba(100,200,255,0.2)"}}>

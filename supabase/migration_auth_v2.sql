@@ -65,5 +65,5 @@ create policy "Authenticated write mixers" on public.mixers
 -- ============================================================
 
 -- insert into public.profiles (id, display_name) 
---   values ('YOUR-USER-ID-HERE', 'Michael')
+--   values ('10061b38-5005-4ec8-8f92-0e8b320393b6', 'Michael')
 --   on conflict (id) do update set display_name = 'Michael';
