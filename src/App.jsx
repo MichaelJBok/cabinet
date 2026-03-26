@@ -1117,9 +1117,10 @@ function IngAmtInput({ ingItem, onCommit, t }) {
 export default function CocktailGuide() {
   const {
     recipes, setRecipes,
-    allMixers, setAllMixers,
+    allMixers,
     mixerCategories, setMixerCategories,
     selectedMixers, setSelectedMixers,
+    barFilterActive, setBarFilterActive,
     filterMode, setFilterMode,
     sortOrder, setSortOrder,
     createRecipe, updateRecipe, deleteRecipe: deleteRecipeDB,
@@ -1128,7 +1129,7 @@ export default function CocktailGuide() {
     userId, getProfile, saveProfile, signOut,
     addMixer,
     resetAll,
-    loading, error: dbError,
+    dbError, setDbError,
   } = useSupabase();
 
   // Light mode — local state persisted to localStorage
@@ -1281,7 +1282,7 @@ export default function CocktailGuide() {
         const data = JSON.parse(ev.target.result);
         if (!Array.isArray(data.recipes)) throw new Error("Invalid file format");
         setRecipes(data.recipes);
-        if (data.allMixers) setAllMixers(data.allMixers);
+        // allMixers derived from mixerCategories in hook
         if (data.mixerCategories) setMixerCategories(data.mixerCategories);
         setImportError(null);
         setView("browse");
@@ -1701,7 +1702,7 @@ export default function CocktailGuide() {
   const fontDisplay = "'DM Serif Display', Georgia, serif";
   const fontBody    = "'DM Sans', system-ui, sans-serif";
 
-  if (loading) return (
+  if (!userId) return (
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#0d1117",fontFamily:"'DM Sans', system-ui, sans-serif"}}>
       <div style={{textAlign:"center",color:"#c9a96e"}}>
         <div style={{fontSize:48,marginBottom:16}}>🍸</div>
