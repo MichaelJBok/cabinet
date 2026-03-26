@@ -859,13 +859,17 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
       // Draw nodes
       nodes.forEach(n => {
         const isHover = n.id === hoverId;
-        const isFaded = hoverId && !isHover;
-        const radius = isHover ? 10 : 6;
+        const isConnected = hoverId && !isHover && edges.some(e =>
+          (e.source.id === hoverId && e.target.id === n.id) ||
+          (e.target.id === hoverId && e.source.id === n.id)
+        );
+        const isFaded = hoverId && !isHover && !isConnected;
+        const radius = isHover ? 10 : isConnected ? 8 : 6;
         if (!isFinite(n.x) || !isFinite(n.y)) return;
 
-        if (isHover || !isFaded) {
+        if (isHover || isConnected || !isFaded) {
           const gradient = ctx.createRadialGradient(n.x, n.y, radius, n.x, n.y, radius * 2.8);
-          gradient.addColorStop(0, hexRgb(n.color, isHover ? 0.4 : 0.15));
+          gradient.addColorStop(0, hexRgb(n.color, isHover ? 0.4 : isConnected ? 0.3 : 0.15));
           gradient.addColorStop(1, hexRgb(n.color, 0));
           ctx.beginPath();
           ctx.arc(n.x, n.y, radius * 2.8, 0, Math.PI*2);
@@ -881,13 +885,13 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
         ctx.lineWidth = 1.5 / ts;
         ctx.stroke();
 
-        const labelAlpha = isFaded ? 0.15 : (isHover ? 1 : 0.7);
-        const fontSize = Math.max(7, Math.min(13, (isHover ? 11 : 8) / ts));
-        ctx.font = `${fontSize}px "DM Sans", system-ui, sans-serif`;
+        const labelAlpha = isFaded ? 0.15 : (isHover || isConnected ? 1 : 0.7);
+        const fontSize = Math.max(7, Math.min(13, ((isHover || isConnected) ? 11 : 8) / ts));
+        ctx.font = `${isConnected ? "600 " : ""}${fontSize}px "DM Sans", system-ui, sans-serif`;
         ctx.fillStyle = lightMode ? `rgba(50,30,5,${labelAlpha})` : `rgba(220,190,100,${labelAlpha})`;
         ctx.textAlign = "center";
-        const label = isHover ? n.name : (n.name.length > 16 ? n.name.slice(0,14)+"…" : n.name);
-        ctx.fillText(label, n.x, n.y + radius + (isHover ? 16 : 13));
+        const label = (isHover || isConnected) ? n.name : (n.name.length > 16 ? n.name.slice(0,14)+"…" : n.name);
+        ctx.fillText(label, n.x, n.y + radius + ((isHover || isConnected) ? 16 : 13));
       });
 
       // Tag cluster labels
@@ -2120,8 +2124,8 @@ export default function CocktailGuide() {
                         <CocktailIllustration name={r.name} glass={r.glass} color={r.color} size={54} visOverride={customVisuals[r.id]||null} lightMode={lightMode}/>
                       </div>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3,flexWrap:"wrap",gap:8}}>
-                          <div style={{fontSize:14,fontWeight:"400",color:t.textPrimary,lineHeight:1.2,fontFamily:fontDisplay}}>{r.name}</div>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3}}>
+                          <div style={{fontSize:14,fontWeight:"400",color:t.textPrimary,lineHeight:1.2,fontFamily:fontDisplay,flex:1,minWidth:0,marginRight:4}}>{r.name}</div>
                           <div style={{display:"flex",gap:1,alignItems:"center",flexShrink:0}}>
                             <button onClick={e=>{e.stopPropagation();toggleWantToTry(r.id);}} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}}><svg width="13" height="13" viewBox="0 0 24 24" fill={r.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:r.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
                             <button onClick={e=>{e.stopPropagation();toggleVerified(r.id);}} title="Verified ingredients" style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:r.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
