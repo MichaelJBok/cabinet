@@ -1164,7 +1164,6 @@ export default function CocktailGuide() {
   const [showFavOnly, setShowFavOnly] = useState(false);
   const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
   const [showWantToTryOnly, setShowWantToTryOnly] = useState(false);
-  const [barFilterActive, setBarFilterActive] = useState(true);
   const [search, setSearch] = useState("");
   const [ingFilter, setIngFilter] = useState(null);
   const [tagFilters, setTagFilters] = useState(new Set());
@@ -1339,14 +1338,18 @@ export default function CocktailGuide() {
     return () => ro.disconnect();
   }, []);
 
-  // Save bar state to Supabase when it changes
+  // Save bar state to Supabase when it changes — but not on initial load
+  const barLoadedRef = useRef(false);
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) { barLoadedRef.current = false; return; }
+    if (!barLoadedRef.current) { barLoadedRef.current = true; return; }
     saveSelectedMixers(selectedMixers);
   }, [selectedMixers, userId]);
 
+  const barActiveLoadedRef = useRef(false);
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) { barActiveLoadedRef.current = false; return; }
+    if (!barActiveLoadedRef.current) { barActiveLoadedRef.current = true; return; }
     saveBarFilterActive(barFilterActive);
   }, [barFilterActive, userId]);
 
