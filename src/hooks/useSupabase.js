@@ -85,13 +85,24 @@ export function useSupabase() {
     await supabase.from("profiles").upsert({ id: userId, display_name: displayName });
   };
 
+  // Convert camelCase app fields to snake_case DB columns
+  const toDbRecipe = (recipe) => {
+    // Strip camelCase/app-only fields, map to snake_case DB columns
+    const { variantOf, variantName, wantToTry, favorite, verified, notes, _variantSearch, ...rest } = recipe;
+    return {
+      ...rest,
+      variant_of:   variantOf   ?? null,
+      variant_name: variantName ?? "",
+    };
+  };
+
   const createRecipe = async (recipe) => {
-    const { error } = await supabase.from("recipes").insert([recipe]);
+    const { error } = await supabase.from("recipes").insert([toDbRecipe(recipe)]);
     if (error) setDbError(error.message);
   };
 
   const updateRecipe = async (recipe) => {
-    const { error } = await supabase.from("recipes").upsert([recipe]);
+    const { error } = await supabase.from("recipes").upsert([toDbRecipe(recipe)]);
     if (error) setDbError(error.message);
   };
 
