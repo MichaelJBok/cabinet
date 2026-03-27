@@ -39,15 +39,17 @@ export function useSupabase() {
 
       const stateMap = {};
       (stateRows || []).forEach(s => { stateMap[s.recipe_id] = s; });
-      const merged = (recipeRows || []).map(r => ({
-        ...r,
-        variantOf:   r.variant_of   ?? r.variantOf   ?? null,
-        variantName: r.variant_name ?? r.variantName ?? "",
-        favorite:    stateMap[r.id]?.favorite    ?? false,
-        verified:    stateMap[r.id]?.verified    ?? false,
-        wantToTry:   stateMap[r.id]?.want_to_try ?? false,
-        notes:       stateMap[r.id]?.notes       ?? "",
-      }));
+      const merged = (recipeRows || [])
+        .filter(r => stateMap[r.id]?.notes !== "__hidden__") // filter user-hidden recipes
+        .map(r => ({
+          ...r,
+          variantOf:   r.variant_of   ?? r.variantOf   ?? null,
+          variantName: r.variant_name ?? r.variantName ?? "",
+          favorite:    stateMap[r.id]?.favorite    ?? false,
+          verified:    stateMap[r.id]?.verified    ?? false,
+          wantToTry:   stateMap[r.id]?.want_to_try ?? false,
+          notes:       stateMap[r.id]?.notes       ?? "",
+        }));
       setRecipes(merged);
 
       const { data: barRows, error: be } = await supabase.from("bar_state").select("*").eq("user_id", userId);
@@ -171,7 +173,7 @@ export function useSupabase() {
     getProfile, saveProfile,
     createRecipe, updateRecipe,
     deleteRecipe,
-    toggleFavoriteDB, toggleVerifiedDB, toggleWantToTryDB, saveNotesDB,
+    toggleFavoriteDB, toggleVerifiedDB, toggleWantToTryDB, saveNotesDB, saveRecipeState,
     saveSelectedMixers, saveBarFilterActive,
     addMixer,
     resetAll,

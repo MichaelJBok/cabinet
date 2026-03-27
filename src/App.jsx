@@ -1188,6 +1188,7 @@ export default function CocktailGuide() {
   const [newIngPromptCat, setNewIngPromptCat] = useState("Garnishes & Other");
   const [importError, setImportError] = useState(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [customVisuals, setCustomVisuals] = useState({});
@@ -1540,7 +1541,13 @@ export default function CocktailGuide() {
     setView(view === "create" ? "browse" : "detail");
   };
 
-  const deleteRecipe = async (id) => { await deleteRecipeDB(id); setRecipes(prev => prev.filter(r => r.id !== id)); setView("browse"); };
+  const deleteRecipe = async (id) => {
+    // Hide from this user's view only — save hidden flag to recipe_state, remove from local list
+    await saveNotesDB(id, "__hidden__");
+    setRecipes(prev => prev.filter(r => r.id !== id));
+    setView("browse");
+    setShowDeleteConfirm(false);
+  };
 
   // Returns all recipes in the same variant family as r (excluding r itself)
   const getVariants = (r) => {
@@ -2298,7 +2305,7 @@ export default function CocktailGuide() {
                   <div style={{display:"flex",gap:4,alignItems:"center"}}>
                     <button onClick={() => openVariant(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid rgba(100,200,255,0.4)",background:"rgba(100,200,255,0.08)",color:t.variantColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap",lineHeight:"normal"}}>Variant</button>
                     <button onClick={() => openEdit(activeRecipe)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.accentBorder,background:t.accentBg,color:t.accent,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Edit</button>
-                    <button onClick={() => deleteRecipe(activeRecipe.id)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
+                    <button onClick={() => setShowDeleteConfirm(true)} style={{padding:"2px 8px",borderRadius:8,border:"1px solid "+t.dangerBorder,background:"rgba(255,80,80,0.1)",color:t.dangerColor,cursor:"pointer",fontSize:10,fontFamily:"inherit",whiteSpace:"nowrap"}}>Delete</button>
                   </div>
                 </div>
                 {/* Row 2: illustration + title */}
@@ -2663,24 +2670,29 @@ export default function CocktailGuide() {
                           }}/>
                         ))}
                         {/* Free-pick swatch */}
-                        <div style={{position:"relative",width:26,height:26,flexShrink:0}} title="Custom color">
-                          <div style={{
-                            width:26,height:26,borderRadius:"50%",
-                            background: COLORS.includes(editForm.color) ? "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" : editForm.color,
-                            border:"2px solid",
-                            borderColor: !COLORS.includes(editForm.color) ? t.accent : "transparent",
-                            cursor:"pointer", overflow:"hidden",
-                            display:"flex",alignItems:"center",justifyContent:"center",
-                            fontSize:11,
-                          }}>
-                            {COLORS.includes(editForm.color) && <span style={{color:"rgba(0,0,0,0.5)",fontWeight:"bold",fontSize:14,lineHeight:1}}>+</span>}
+                        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,flexShrink:0}}>
+                          <div style={{position:"relative",width:34,height:34}} title="Pick a custom color">
+                            <div style={{
+                              width:34,height:34,borderRadius:8,
+                              background: COLORS.includes(editForm.color) ? "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" : editForm.color,
+                              border:"2px dashed",
+                              borderColor: !COLORS.includes(editForm.color) ? t.accent : (lightMode?"rgba(0,0,0,0.3)":"rgba(255,255,255,0.3)"),
+                              cursor:"pointer", overflow:"hidden",
+                              display:"flex",alignItems:"center",justifyContent:"center",
+                            }}>
+                              {COLORS.includes(editForm.color)
+                                ? <span style={{fontSize:16,lineHeight:1,filter:"drop-shadow(0 1px 1px rgba(0,0,0,0.4))"}}>🎨</span>
+                                : <span style={{fontSize:9,color:"rgba(255,255,255,0.9)",fontWeight:"bold",textShadow:"0 1px 2px rgba(0,0,0,0.6)"}}>✓</span>
+                              }
+                            </div>
+                            <input type="color" value={editForm.color} onChange={e => {
+                              setEditForm(prev => ({...prev, color: e.target.value}));
+                              setEditVis(prev => ({...prev, liquid: e.target.value}));
+                            }} style={{
+                              position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%",
+                            }}/>
                           </div>
-                          <input type="color" value={editForm.color} onChange={e => {
-                            setEditForm(prev => ({...prev, color: e.target.value}));
-                            setEditVis(prev => ({...prev, liquid: e.target.value}));
-                          }} style={{
-                            position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%",
-                          }}/>
+                          <span style={{fontSize:8,color:t.textMuted,letterSpacing:0.5,whiteSpace:"nowrap"}}>CUSTOM</span>
                         </div>
                       </div>
                     </div>
@@ -2841,7 +2853,7 @@ export default function CocktailGuide() {
         const wantRecipes = recipes.filter(r => r.wantToTry);
         return (
           <div onClick={() => setShowShoppingList(false)} style={{position:"fixed",inset:0,background:t.overlayBg,zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-            <div onClick={e => e.stopPropagation()} style={{background:t.cardBg,border:"1px solid "+t.cardBorder,borderRadius:16,padding:28,width:"100%",maxWidth:440,maxHeight:"80vh",display:"flex",flexDirection:"column",gap:0}}>
+            <div onClick={e => e.stopPropagation()} style={{background:lightMode?t.cardBg:"#1e2235",border:"1px solid "+t.cardBorder,borderRadius:16,padding:28,width:"100%",maxWidth:440,maxHeight:"80vh",display:"flex",flexDirection:"column",gap:0}}>
               {/* Header */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
                 <div>
@@ -2882,6 +2894,40 @@ export default function CocktailGuide() {
           </div>
         );
       })()}
+      {showDeleteConfirm && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{
+            background: lightMode ? "#fff" : "#1e1e2e",
+            border: "1px solid " + (lightMode ? "rgba(180,40,40,0.35)" : "rgba(255,100,100,0.35)"),
+            borderRadius:16, padding:32, maxWidth:340, width:"90%", textAlign:"center",
+            boxShadow:"0 12px 48px rgba(0,0,0,0.35)",
+          }}>
+            <div style={{fontSize:28,marginBottom:12}}>🗑️</div>
+            <div style={{fontSize:17,fontWeight:600,color: lightMode ? "#1a1a1a" : "#f0f0f0",marginBottom:8}}>
+              Hide "{activeRecipe?.name}"?
+            </div>
+            <div style={{fontSize:13,color: lightMode ? "#555" : "#aaa",marginBottom:24,lineHeight:1.5}}>
+              This recipe will be hidden from your view. It stays in the shared library for other users.
+            </div>
+            <div style={{display:"flex",gap:10,justifyContent:"center"}}>
+              <button onClick={() => setShowDeleteConfirm(false)} style={{
+                padding:"9px 22px", borderRadius:10,
+                border:"1px solid "+(lightMode?"rgba(0,0,0,0.2)":"rgba(255,255,255,0.15)"),
+                background: lightMode?"#f0f0f0":"rgba(255,255,255,0.08)",
+                color: lightMode?"#333":"#ccc",
+                cursor:"pointer", fontSize:13, fontFamily:"inherit",
+              }}>Cancel</button>
+              <button onClick={() => deleteRecipe(activeRecipe.id)} style={{
+                padding:"9px 22px", borderRadius:10,
+                border:"1px solid rgba(200,50,50,0.6)",
+                background:"rgba(200,50,50,0.15)",
+                color: lightMode?"#b02020":"#ff7070",
+                cursor:"pointer", fontSize:13, fontFamily:"inherit", fontWeight:600,
+              }}>Hide recipe</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showResetConfirm && (
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center"}}>
           <div style={{
