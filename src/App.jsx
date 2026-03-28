@@ -1186,7 +1186,6 @@ export default function CocktailGuide() {
   const [servings, setServings] = useState(1);
   const [newIngPrompt, setNewIngPrompt] = useState(null);
   const [newIngPromptCat, setNewIngPromptCat] = useState("Garnishes & Other");
-  const [importError, setImportError] = useState(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShoppingList, setShowShoppingList] = useState(false);
@@ -1262,7 +1261,6 @@ export default function CocktailGuide() {
     infoMuted:    "#80b0d0",
     disabledColor:"rgba(255,200,100,0.2)",
   };
-  const importRef = useRef(null);
 
   // Export full library as JSON file
   const handleExport = () => {
@@ -1278,26 +1276,7 @@ export default function CocktailGuide() {
   };
 
   // Import from JSON file
-  const handleImportFile = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        if (!Array.isArray(data.recipes)) throw new Error("Invalid file format");
-        setRecipes(data.recipes);
-        // allMixers derived from mixerCategories in hook
-        if (data.mixerCategories) setMixerCategories(data.mixerCategories);
-        setImportError(null);
-        setView("browse");
-      } catch(err) {
-        setImportError("Couldn't read that file. Make sure it's a Cabinet export JSON.");
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = ""; // reset so same file can be re-imported
-  };
+
 
   // Reset to factory defaults
   const handleReset = () => { setShowResetConfirm(true); };
@@ -1775,13 +1754,6 @@ export default function CocktailGuide() {
             background:"transparent", color:t.textSecond,
             cursor:"pointer", fontSize:11, fontFamily:"inherit",
           }}>⬇ Export</button>
-          {/* Import */}
-          <button onClick={() => importRef.current?.click()} title="Load a previously exported JSON file" style={{
-            padding:"6px 11px", borderRadius:16, border:"1px solid "+t.inputBorder,
-            background:"transparent", color:t.textSecond,
-            cursor:"pointer", fontSize:11, fontFamily:"inherit",
-          }}>⬆ Import</button>
-          <input ref={importRef} type="file" accept=".json" onChange={handleImportFile}
             style={{display:"none"}} />
           {/* Light/Dark toggle */}
           <button onClick={() => setLightMode(!lightMode)} title={lightMode ? "Switch to dark mode" : "Switch to light mode"} style={{
@@ -1851,17 +1823,6 @@ export default function CocktailGuide() {
       {/* Zoom wrapper — CSS zoom affects layout unlike transform:scale */}
       <div style={{ flex:1, overflow:"auto" }}>
       <div style={{ zoom: zoom }}>
-      {/* Import error banner */}
-      {importError && (
-        <div style={{
-          background:"rgba(200,50,50,0.15)", borderBottom:"1px solid rgba(200,80,80,0.3)",
-          padding:"8px 24px", display:"flex", justifyContent:"space-between", alignItems:"center",
-          fontSize:12, color:t.dangerColor,
-        }}>
-          ⚠ {importError}
-          <button onClick={() => setImportError(null)} style={{background:"none",border:"none",color:t.dangerColor,cursor:"pointer",fontSize:14}}>×</button>
-        </div>
-      )}
 
       <div style={{display:"flex",flex:1,minHeight:"calc(100vh - 69px)"}}>
 
