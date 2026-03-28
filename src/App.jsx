@@ -1754,7 +1754,6 @@ export default function CocktailGuide() {
             background:"transparent", color:t.textSecond,
             cursor:"pointer", fontSize:11, fontFamily:"inherit",
           }}>⬇ Export</button>
-            style={{display:"none"}} />
           {/* Light/Dark toggle */}
           <button onClick={() => setLightMode(!lightMode)} title={lightMode ? "Switch to dark mode" : "Switch to light mode"} style={{
             padding:"6px 10px", borderRadius:16, border:"1px solid "+t.btnBorder,
