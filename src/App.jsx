@@ -93,7 +93,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
            gl.includes("tiki") ? "tiki" :
            "rocks",
     liquid: color || "#a0c8f0",
-    foam: false, garnish: null, ice: false, bubbles: false,
+    foam: false, garnish: null, ice: false, bigice: false, bubbles: false,
     crushed: false, layered: false, salt: false, sugar: false,
   };
 
@@ -116,6 +116,23 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
       <rect x={x3} y={y3} width={s*0.11} height={s*0.11} rx={1} fill={iceColor} stroke={iceStroke} strokeWidth="1"/>
     </g>
   );
+
+  // C: Single large ice cube — centered in the glass
+  const BigIce = ({ cx: bx, bottom, width, height }) => {
+    const sz = Math.min(width * 0.55, height * 0.55);
+    const x = bx - sz / 2;
+    const y = bottom - sz - height * 0.05;
+    return (
+      <g opacity="0.88">
+        <rect x={x} y={y} width={sz} height={sz} rx={s*0.03}
+          fill={iceColor} stroke={iceStroke} strokeWidth="1.2"/>
+        <line x1={x + sz*0.2} y1={y + sz*0.2} x2={x + sz*0.55} y2={y + sz*0.2}
+          stroke="rgba(255,255,255,0.55)" strokeWidth="1" strokeLinecap="round"/>
+        <line x1={x + sz*0.2} y1={y + sz*0.2} x2={x + sz*0.2} y2={y + sz*0.48}
+          stroke="rgba(255,255,255,0.55)" strokeWidth="1" strokeLinecap="round"/>
+      </g>
+    );
+  };
 
   // C: Crushed ice — scattered small shards
   const CrushedIce = ({ cx: bx, top, bottom, width }) => {
@@ -336,6 +353,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         {vis.redwine && <rect x={gx} y={gy+gh-liqH} width={gw} height={s*0.07} clipPath={clipUrl} fill="#8b0000" opacity="0.7"/>}
         {vis.cream   && <rect x={gx} y={gy+gh-liqH} width={gw} height={s*0.09} clipPath={clipUrl} fill="rgba(255,248,235,0.85)" opacity="0.9"/>}
         {vis.ice && <IceCubes x1={gx+6} y1={gy+gh-s*0.22} x2={gx+gw-s*0.22} y2={gy+gh-s*0.28} x3={gx+gw*0.42} y3={gy+gh-s*0.20}/>}
+        {vis.bigice && <BigIce cx={cx} bottom={gy+gh} width={gw} height={gh}/>}
         {vis.crushed && <CrushedIce cx={cx} top={gy} bottom={gy+gh} width={gw}/>}
         {vis.layered && <rect x={gx} y={gy+gh-liqH*0.42} width={gw} height={liqH*0.3} clipPath={clipUrl} fill="rgba(200,80,20,0.3)" opacity="0.8"/>}
         {vis.salt && <RimCoating rimY={gy} rimX1={gx+4} rimX2={gx+gw-4} type="salt"/>}
@@ -373,6 +391,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
           <rect x={gx} y={gy+gh-liqH} width={gw} height={liqH} clipPath={clipUrl} fill={liquidColor} opacity="0.85"/>
         )}
         {vis.ice     && <IceCubes x1={gx+5} y1={gy+8} x2={gx+gw-s*0.18} y2={gy+14} x3={gx+gw*0.38} y3={gy+5}/>}
+        {vis.bigice && <BigIce cx={cx} bottom={gy+gh} width={gw} height={gh}/>}
         {vis.crushed && <CrushedIce cx={cx} top={gy} bottom={gy+gh} width={gw}/>}
         {vis.layered && <rect x={gx} y={gy+gh-liqH*0.42} width={gw} height={liqH*0.3} clipPath={clipUrl} fill="rgba(200,80,20,0.3)" opacity="0.8"/>}
         {vis.salt && <RimCoating rimY={gy} rimX1={gx} rimX2={gx+gw} type="salt"/>}
@@ -426,6 +445,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <defs><clipPath id={clipId}><path d={winePath}/></clipPath></defs>
         <rect x={cx-bowlW} y={bowlBot-liqH} width={bowlW*2} height={liqH} clipPath={clipUrl} fill={liquidColor} opacity="0.85"/>
         {vis.ice     && <IceCubes x1={cx-s*0.2} y1={bowlBot-liqH+4} x2={cx+s*0.06} y2={bowlBot-liqH+8} x3={cx-s*0.05} y3={bowlBot-liqH+2}/>}
+        {vis.bigice && <BigIce cx={cx} bottom={bowlBot} width={bowlW*2} height={liqH}/>}
         {vis.bubbles && <Bubbles bx={cx+10} by={bowlBot-liqH+s*0.1} r1={1} r2={0.7} r3={0.9}/>}
         <path d={winePath} fill={glassFill} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-bowlW} y1={bowlTop} x2={cx+bowlW} y2={bowlTop} stroke={glassStroke} strokeWidth="1.5"/>
@@ -469,6 +489,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         {vis.salt && <RimCoating rimY={ht} rimX1={cx-rimW} rimX2={cx+rimW} type="salt"/>}
         {vis.sugar && <RimCoating rimY={ht} rimX1={cx-rimW} rimX2={cx+rimW} type="sugar"/>}
         {vis.ice  && <IceCubes x1={cx-s*0.18} y1={hb-s*0.22} x2={cx+s*0.06} y2={hb-s*0.28} x3={cx-s*0.04} y3={hb-s*0.19}/>}
+        {vis.bigice && <BigIce cx={cx} bottom={hb} width={rimW*2} height={liqH}/>}
         <path d={hPath} fill={glassFill} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-rimW} y1={ht} x2={cx+rimW} y2={ht} stroke={glassStroke} strokeWidth="1.5"/>
         
@@ -516,6 +537,7 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <defs><clipPath id={clipId}><path d={snPath}/></clipPath></defs>
         <rect x={cx-bowlW} y={bowlBot-liqH} width={bowlW*2} height={liqH} clipPath={clipUrl} fill={liquidColor} opacity="0.85"/>
         {vis.ice && <IceCubes x1={cx-s*0.18} y1={bowlBot-liqH+4} x2={cx+s*0.05} y2={bowlBot-liqH+8} x3={cx-s*0.04} y3={bowlBot-liqH+3}/>}
+        {vis.bigice && <BigIce cx={cx} bottom={bowlBot} width={bowlW*2} height={liqH}/>}
         {vis.layered && <rect x={cx-bowlW} y={bowlBot-liqH*0.38} width={bowlW*2} height={liqH*0.28} clipPath={clipUrl} fill="rgba(80,20,10,0.35)" opacity="0.8"/>}
         <path d={snPath} fill={glassFill} stroke={glassStroke} strokeWidth="1.2"/>
         <line x1={cx-rimW} y1={bowlTop} x2={cx+rimW} y2={bowlTop} stroke={glassStroke} strokeWidth="1.5"/>
@@ -1393,7 +1415,7 @@ export default function CocktailGuide() {
              gl.includes("tiki") ? "tiki" :
              "rocks",
       liquid: color || "#a0c8f0",
-      foam: false, garnish: null, ice: false, bubbles: false,
+      foam: false, garnish: null, ice: false, bigice: false, bubbles: false,
       crushed: false, layered: false, salt: false, sugar: false,
     };
   };
@@ -2690,7 +2712,7 @@ export default function CocktailGuide() {
                     <div style={{marginBottom:8}}>
                       <label style={{fontSize:9,letterSpacing:2,color:t.textSecond,textTransform:"uppercase",display:"block",marginBottom:6}}>Effects</label>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                        {[["foam","🫧 Foam"],["ice","🧊 Ice"],["crushed","❄️ Crushed"],["bubbles","✨ Bubbles"],["layered","🎨 Layered"],["salt","🧂 Salt Rim"],["sugar","🍬 Sugar Rim"]].map(([key,label]) => (
+                        {[["foam","🫧 Foam"],["ice","🧊 Ice"],["bigice","🧊 Big Ice"],["crushed","❄️ Crushed"],["bubbles","✨ Bubbles"],["layered","🎨 Layered"],["salt","🧂 Salt Rim"],["sugar","🍬 Sugar Rim"]].map(([key,label]) => (
                           <button key={key} onClick={() => setEditVis(prev => ({...prev,[key]:!prev[key]}))} style={{
                             padding:"5px 10px", borderRadius:10, border:"1px solid",
                             borderColor: editVis[key] ? t.accent : t.btnBorder,
