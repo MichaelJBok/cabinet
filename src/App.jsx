@@ -1484,7 +1484,7 @@ export default function CocktailGuide() {
   };
 
   const openCreate = () => {
-    const form = { id: Date.now(), name: "", favorite: false, verified: false, notes: "", tags: ["Classic"],
+    const form = { id: Math.floor(Math.random() * 2000000000) + 100000000, name: "", favorite: false, verified: false, notes: "", tags: ["Classic"],
       ingredients: [], instructions: "", garnish: "", glass: "Rocks", color: "#e8eaf6", created_by: userName || null };
     setEditForm(form);
     setEditVis(defaultVis("Rocks", "#e8eaf6"));
@@ -1494,7 +1494,7 @@ export default function CocktailGuide() {
 
   const openVariant = (r) => {
     const rootId = r.variantOf || r.id;
-    const newId = Date.now();
+    const newId = Math.floor(Math.random() * 2000000000) + 100000000;
     const form = { ...r, ingredients: r.ingredients.map(i => ({...i})),
       id: newId, name: r.name + " (Variant)", favorite: false, verified: false, notes: "",
       variantOf: rootId, variantName: "", created_by: userName || null };
