@@ -22,7 +22,7 @@ create table if not exists recipes (
 -- ── Per-recipe user state ───────────────────────────────────────────────────────
 -- One row per recipe; upserted whenever user toggles favourite etc.
 create table if not exists recipe_state (
-  recipe_id     integer primary key references recipes(id) on delete cascade,
+  recipe_id     bigint  primary key references recipes(id) on delete cascade,
   favorite      boolean not null default false,
   verified      boolean not null default false,
   want_to_try   boolean not null default false,
