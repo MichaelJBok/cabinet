@@ -1510,8 +1510,9 @@ export default function CocktailGuide() {
     if (editVis) setCustomVisuals(prev => ({...prev, [editForm.id]: editVis}));
     const {_variantSearch, ...cleanForm} = editForm;
     if (view === "create") {
-      await createRecipe(cleanForm);
-      setRecipes(prev => [...prev, cleanForm]);
+      const created = await createRecipe(cleanForm);
+      const savedRecipe = created ? { ...cleanForm, id: created.id } : cleanForm;
+      setRecipes(prev => [...prev, savedRecipe]);
     } else {
       await updateRecipe(cleanForm);
       setRecipes(prev => prev.map(r => r.id === cleanForm.id ? cleanForm : r));
