@@ -1498,9 +1498,20 @@ export default function CocktailGuide() {
     setAutofilling(false);
   };
 
-  const openEdit = (r) => {
+  // Populate customVisuals from DB whenever recipes load
+  useEffect(() => {
+    if (recipes.length > 0) {
+      setCustomVisuals(prev => {
+        const next = {...prev};
+        recipes.forEach(r => { if (r.visual && !next[r.id]) next[r.id] = r.visual; });
+        return next;
+      });
+    }
+  }, [recipes]);
+
+    const openEdit = (r) => {
     setEditForm({...r, ingredients: r.ingredients.map(i => ({...i}))});
-    const existing = customVisuals[r.id] || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
+    const existing = customVisuals[r.id] || r.visual || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
     setEditVis({...existing});
     setView("edit");
   };
@@ -1529,16 +1540,17 @@ export default function CocktailGuide() {
 
   const saveRecipe = async () => {
     if (!editForm.name.trim()) return;
-    if (editVis) setCustomVisuals(prev => ({...prev, [editForm.id]: editVis}));
     const {_variantSearch, ...cleanForm} = editForm;
+    const formWithVis = {...cleanForm, visual: editVis || null};
+    if (editVis) setCustomVisuals(prev => ({...prev, [editForm.id]: editVis}));
     if (view === "create") {
-      const created = await createRecipe(cleanForm);
-      const savedRecipe = created ? { ...cleanForm, id: created.id } : cleanForm;
+      const created = await createRecipe(formWithVis);
+      const savedRecipe = created ? { ...formWithVis, id: created.id } : formWithVis;
       setRecipes(prev => [...prev, savedRecipe]);
     } else {
-      await updateRecipe(cleanForm);
-      setRecipes(prev => prev.map(r => r.id === cleanForm.id ? cleanForm : r));
-      setActiveRecipe(cleanForm);
+      await updateRecipe(formWithVis);
+      setRecipes(prev => prev.map(r => r.id === formWithVis.id ? formWithVis : r));
+      setActiveRecipe(formWithVis);
     }
     setView(view === "create" ? "browse" : "detail");
   };
