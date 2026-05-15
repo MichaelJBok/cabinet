@@ -99,8 +99,9 @@ export function useSupabase() {
   };
 
   const createRecipe = async (recipe) => {
-    const { error } = await supabase.from("recipes").insert([toDbRecipe(recipe)]);
+    const { data, error } = await supabase.from("recipes").insert([toDbRecipe(recipe)]).select();
     if (error) setDbError(error.message);
+    return data ? data[0] : null;
   };
 
   const updateRecipe = async (recipe) => {
