@@ -8,6 +8,7 @@ export function useSupabase() {
   const [barFilterActive, setBarFilterActive] = useState(false);
   const [dbError, setDbError] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
 
   // Local-only state
   const [filterMode, setFilterMode] = useState("any");
@@ -17,9 +18,11 @@ export function useSupabase() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setUserId(data.session?.user?.id ?? null);
+      setUserEmail(data.session?.user?.email ?? null);
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
       setUserId(session?.user?.id ?? null);
+      setUserEmail(session?.user?.email ?? null);
     });
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -170,7 +173,7 @@ export function useSupabase() {
     filterMode, setFilterMode,
     sortOrder, setSortOrder,
     dbError, setDbError,
-    userId,
+    userId, userEmail,
     getProfile, saveProfile,
     createRecipe, updateRecipe,
     deleteRecipe,
