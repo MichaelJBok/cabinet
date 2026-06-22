@@ -2064,13 +2064,13 @@ export default function CocktailGuide() {
                       cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
                       opacity: showWantToTryOnly ? 1 : 0.35,
                     }}><svg width="14" height="14" viewBox="0 0 24 24" fill={showWantToTryOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
-                    <button onClick={() => setShowVerifiedOnly(v => !v)} title="Verified only" style={{
+                    {isOwner && <button onClick={() => setShowVerifiedOnly(v => !v)} title="Verified only" style={{
                       width:28, height:28, borderRadius:10, border:"1px solid",
                       borderColor: showVerifiedOnly ? t.textSecond : "transparent",
                       background: "transparent",
                       cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
                       opacity: showVerifiedOnly ? 1 : 0.35,
-                    }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg></button>
+                    }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg></button>}
                     <button onClick={() => setShowFavOnly(!showFavOnly)} title="Favourites only" style={{
                       width:28, height:28, borderRadius:10, border:"1px solid",
                       borderColor: showFavOnly ? t.textSecond : "transparent",
