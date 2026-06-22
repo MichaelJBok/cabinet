@@ -6,6 +6,9 @@ import { ALL_TAGS, DRINK_VISUALS } from "./data";
 // oz is the canonical numeric value in fluid ounces; displayAmt used when oz is null
 const ML_PER_OZ = 29.5735;
 
+const OWNER_EMAIL = "mikebok@gmail.com";
+
+
 // Measure how many ingredient chips fit in `containerW` across max `maxRows` rows.
 // Returns { visible: string[], extra: number }
 const _chipCanvas = typeof document !== "undefined" ? document.createElement("canvas") : null;
@@ -1152,11 +1155,13 @@ export default function CocktailGuide() {
     createRecipe, updateRecipe, deleteRecipe: deleteRecipeDB,
     toggleFavoriteDB, toggleVerifiedDB, toggleWantToTryDB, saveNotesDB,
     saveSelectedMixers, saveBarFilterActive,
-    userId, getProfile, saveProfile, signOut,
+    userId, userEmail, getProfile, saveProfile, signOut,
     addMixer,
     resetAll,
     dbError, setDbError,
   } = useSupabase();
+
+  const isOwner = userEmail === OWNER_EMAIL;
 
   // Light mode — local state persisted to localStorage
   const [lightMode, setLightModeRaw] = useState(() =>
@@ -2130,7 +2135,7 @@ export default function CocktailGuide() {
                           <div style={{fontSize:14,fontWeight:"400",color:t.textPrimary,lineHeight:1.2,fontFamily:fontDisplay,flex:1,minWidth:0,marginRight:4}}>{r.name}</div>
                           <div style={{display:"flex",gap:1,alignItems:"center",flexShrink:0}}>
                             <button onClick={e=>{e.stopPropagation();toggleWantToTry(r.id);}} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}}><svg width="13" height="13" viewBox="0 0 24 24" fill={r.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:r.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
-                            <button onClick={e=>{e.stopPropagation();toggleVerified(r.id);}} title="Verified ingredients" style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:r.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
+                            {isOwner && <button onClick={e=>{e.stopPropagation();toggleVerified(r.id);}} title="Verified ingredients" style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:r.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>}
                             <button onClick={e=>{e.stopPropagation();toggleFavorite(r.id);}} style={{background:"none",border:"none",cursor:"pointer",padding:"1px 2px",display:"flex",alignItems:"center",flexShrink:0}} title="Favourite"><svg width="14" height="14" viewBox="0 0 24 24" fill={r.favorite?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:r.favorite?1:0.3}}><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
                           </div>
                         </div>
@@ -2294,7 +2299,7 @@ export default function CocktailGuide() {
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
                   <div style={{display:"flex",gap:2,alignItems:"center"}}>
                     <button onClick={() => toggleWantToTry(activeRecipe.id)} title="Want to try" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.wantToTry?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.wantToTry?1:0.3}}><path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z"/></svg></button>
-                    <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>
+                    {isOwner && <button onClick={() => toggleVerified(activeRecipe.id)} title="Mark ingredients as verified" style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:activeRecipe.verified?1:0.3}}><polyline points="20,6 9,17 4,12"/></svg></button>}
                     <button onClick={() => toggleFavorite(activeRecipe.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"2px",display:"flex",alignItems:"center"}} title="Favourite"><svg width="22" height="22" viewBox="0 0 24 24" fill={activeRecipe.favorite?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round" style={{opacity:activeRecipe.favorite?1:0.3}}><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
                   </div>
                   <div style={{display:"flex",gap:4,alignItems:"center"}}>
