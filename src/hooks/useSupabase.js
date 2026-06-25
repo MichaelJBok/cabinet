@@ -13,6 +13,7 @@ export function useSupabase() {
   // Local-only state
   const [filterMode, setFilterMode] = useState("any");
   const [sortOrder, setSortOrder] = useState("match");
+    const [isOwner, setIsOwner] = useState(false);
 
   // Auth
   useEffect(() => {
@@ -71,6 +72,8 @@ export function useSupabase() {
         cats[m.category].push(m.name);
       });
       setMixerCategories(cats);
+              const { data: profileRow } = await supabase.from("profiles").select("is_owner").eq("id", userId).single();
+              setIsOwner(profileRow?.is_owner ?? false);
 
     } catch (err) {
       setDbError(err.message);
@@ -173,7 +176,7 @@ export function useSupabase() {
     filterMode, setFilterMode,
     sortOrder, setSortOrder,
     dbError, setDbError,
-    userId, userEmail,
+        userId, isOwner,
     getProfile, saveProfile,
     createRecipe, updateRecipe,
     deleteRecipe,
