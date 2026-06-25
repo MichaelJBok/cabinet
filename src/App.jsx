@@ -1217,7 +1217,7 @@ export default function CocktailGuide() {
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [customVisuals, setCustomVisuals] = useState({});
   const [editVis, setEditVis] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);  const [generateVisLoading, setGenerateVisLoading] = useState(false);
   const [sessionMixers, setSessionMixers] = useState(new Set());
 
   // ── Theme ──
@@ -1501,7 +1501,7 @@ export default function CocktailGuide() {
     setAutofilling(false);
   };
 
-  // Populate customVisuals from DB whenever recipes load
+  const generateVisual = async () => { const name = editForm?.name?.trim(); if (!name) return; setGenerateVisLoading(true); try { const res = await fetch('/api/generate-visual', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, glass: editForm.glass, color: editForm.color, garnish: editForm.garnish, ingredients: editForm.ingredients }) }); const data = await res.json(); if (!res.ok) throw new Error(data.error || 'API error'); if (data.vis) setEditVis(data.vis); } catch (e) { console.error('generate-visual error:', e.message); } setGenerateVisLoading(false); };  // Populate customVisuals from DB whenever recipes load
   useEffect(() => {
     if (recipes.length > 0) {
       setCustomVisuals(prev => {
@@ -2723,7 +2723,7 @@ export default function CocktailGuide() {
                       </div>
                     </div>
 
-                    {/* Toggles: foam, ice, crushed ice, bubbles, layered, salt rim, sugar rim */}
+                    <div style={{marginBottom:8,display:'flex',alignItems:'center',gap:8}}><button onClick={generateVisual} disabled={generateVisLoading||!editForm?.name?.trim()} style={{padding:'4px 12px',borderRadius:8,border:'1px solid '+t.btnBorder,background:t.accentBg,color:t.accent,fontSize:12,fontFamily:'inherit',cursor:'pointer',opacity:(generateVisLoading||!editForm?.name?.trim())?0.5:1}}>{generateVisLoading?'Generating...':'\u2728 Generate graphic'}</button><span style={{fontSize:10,color:t.textMuted}}>fills glass, liquid, garnish</span></div>  {/* Toggles: foam, ice, crushed ice, bubbles, layered, salt rim, sugar rim */}
                     <div style={{marginBottom:8}}>
                       <label style={{fontSize:9,letterSpacing:2,color:t.textSecond,textTransform:"uppercase",display:"block",marginBottom:6}}>Effects</label>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
