@@ -6,7 +6,6 @@ import { ALL_TAGS, DRINK_VISUALS } from "./data";
 // oz is the canonical numeric value in fluid ounces; displayAmt used when oz is null
 const ML_PER_OZ = 29.5735;
 
-const OWNER_EMAIL = "mikebok@gmail.com";
 
 
 // Measure how many ingredient chips fit in `containerW` across max `maxRows` rows.
@@ -1155,14 +1154,13 @@ export default function CocktailGuide() {
     createRecipe, updateRecipe, deleteRecipe: deleteRecipeDB,
     toggleFavoriteDB, toggleVerifiedDB, toggleWantToTryDB, saveNotesDB,
     saveSelectedMixers, saveBarFilterActive,
-    userId, userEmail, getProfile, saveProfile, signOut,
+        userId, isOwner, getProfile, saveProfile, signOut,
     addMixer,
     resetAll,
     dbError, setDbError,
   } = useSupabase();
 
-  const isOwner = userEmail === OWNER_EMAIL;
-
+  
   // Light mode — local state persisted to localStorage
   const [lightMode, setLightModeRaw] = useState(() =>
     localStorage.getItem("cabinet_lightmode") === "true"
