@@ -1158,6 +1158,7 @@ export default function CocktailGuide() {
     addMixer,
     resetAll,
     dbError, setDbError,
+    loading,
   } = useSupabase();
 
   
@@ -1725,6 +1726,17 @@ export default function CocktailGuide() {
         <div style={{fontSize:48,marginBottom:16}}>🍸</div>
         <div style={{fontSize:16,letterSpacing:2}}>LOADING THE CABINET…</div>
         {dbError && <div style={{fontSize:12,color:"#ff8080",marginTop:12}}>{dbError}</div>}
+      </div>
+    </div>
+  );
+
+  if (loading) return (
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",
+      background:t.bg, fontFamily:fontBody, color:t.textPrimary}}>
+      <div style={{textAlign:"center",color:t.textSecond}}>
+        <div style={{fontSize:48,marginBottom:16}}>🍸</div>
+        <div style={{fontSize:16,letterSpacing:2}}>Loading…</div>
+        {dbError && <div style={{fontSize:12,color:t.dangerColor,marginTop:12}}>{dbError}</div>}
       </div>
     </div>
   );

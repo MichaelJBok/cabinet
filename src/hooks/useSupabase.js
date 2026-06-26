@@ -7,6 +7,7 @@ export function useSupabase() {
   const [mixerCategories, setMixerCategories] = useState({});
   const [barFilterActive, setBarFilterActive] = useState(false);
   const [dbError, setDbError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
 
@@ -34,6 +35,7 @@ export function useSupabase() {
   }, [userId]);
 
   const loadAll = async () => {
+    setLoading(true);
     try {
       const [
         { data: recipeRows, error: re },
@@ -85,6 +87,8 @@ export function useSupabase() {
 
     } catch (err) {
       setDbError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,6 +188,7 @@ export function useSupabase() {
     filterMode, setFilterMode,
     sortOrder, setSortOrder,
     dbError, setDbError,
+    loading,
         userId, isOwner,
     getProfile, saveProfile,
     createRecipe, updateRecipe,
