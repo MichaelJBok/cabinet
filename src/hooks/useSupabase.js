@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { supabase } from "../lib/supabase";
 
 export function useSupabase() {
@@ -149,7 +149,13 @@ export function useSupabase() {
     if (error) setDbError(error.message);
   }, [userId]);
 
-  const saveSelectedMixers = useCallback((mixers) => saveBarState("selected_mixers", [...mixers]), [saveBarState]);
+  // Debounce mixer writes so rapid chip toggles result in a single DB write
+  const saveMixersTimer = useRef(null);
+  const saveSelectedMixers = useCallback((mixers) => {
+    const snapshot = [...mixers];
+    if (saveMixersTimer.current) clearTimeout(saveMixersTimer.current);
+    saveMixersTimer.current = setTimeout(() => saveBarState("selected_mixers", snapshot), 500);
+  }, [saveBarState]);
   const saveBarFilterActive = useCallback((val) => saveBarState("bar_filter_active", val), [saveBarState]);
 
   const addMixer = async (name, category) => {
