@@ -1195,7 +1195,8 @@ export default function CocktailGuide() {
   const [showFavOnly, setShowFavOnly] = useState(false);
   const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
   const [showWantToTryOnly, setShowWantToTryOnly] = useState(false);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [ingFilter, setIngFilter] = useState(null);
   const [tagFilters, setTagFilters] = useState(new Set());
   const [editForm, setEditForm] = useState(null);
@@ -1310,23 +1311,49 @@ export default function CocktailGuide() {
   const toggleMixer = (m) => setSelectedMixers(prev => { const n = new Set(prev); n.has(m) ? n.delete(m) : n.add(m); return n; });
   const toggleCat = (cat) => setExpandedCats(prev => { const n = new Set(prev); n.has(cat) ? n.delete(cat) : n.add(cat); return n; });
 
+  // Debounce raw search input into searchText that feeds the filter
+  useEffect(() => {
+    const id = setTimeout(() => setSearchText(searchInput), 150);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
   // The active mixer set: sidebar session when sidebar open, otherwise My Bar (if filter active)
-  const activeMixers = showSidebar ? sessionMixers : (barFilterActive ? selectedMixers : new Set());
+  const activeMixers = useMemo(
+    () => showSidebar ? sessionMixers : (barFilterActive ? selectedMixers : new Set()),
+    [showSidebar, sessionMixers, barFilterActive, selectedMixers]
+  );
+
+  const matchScore = (r) => {
+    if (activeMixers.size === 0) return 0;
+    const total = r.ingredients.filter(i => i.oz !== null || i.displayAmt !== "garnish").length || r.ingredients.length;
+    const have = r.ingredients.filter(i => activeMixers.has(i.name)).length;
+    return total === 0 ? 0 : have / total;
+  };
 
   const filteredRecipes = useMemo(() => {
-    return recipes.filter(r => {
+    const filtered = recipes.filter(r => {
       if (showFavOnly && !r.favorite) return false;
       if (showVerifiedOnly && !r.verified) return false;
       if (showWantToTryOnly && !r.wantToTry) return false;
       if (ingFilter && !r.ingredients.some(i => i.name === ingFilter)) return false;
-      if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (searchText && !r.name.toLowerCase().includes(searchText.toLowerCase())) return false;
       if (tagFilters.size > 0 && !r.tags?.some(tag => tagFilters.has(tag))) return false;
       if (activeMixers.size === 0) return true;
       const names = r.ingredients.map(i => i.name);
       if (filterMode === "all") return [...activeMixers].every(m => names.includes(m));
       return true; // "any" mode: show all, faded if no match
     });
-  }, [recipes, activeMixers, filterMode, showFavOnly, showVerifiedOnly, showWantToTryOnly, ingFilter, search, tagFilters, barFilterActive]);
+    return filtered.sort((a, b) => {
+      if (sortOrder === "az") return a.name.localeCompare(b.name);
+      const aHave = activeMixers.size === 0 ? 1 : a.ingredients.filter(i => activeMixers.has(i.name)).length;
+      const bHave = activeMixers.size === 0 ? 1 : b.ingredients.filter(i => activeMixers.has(i.name)).length;
+      if (filterMode === "any" && activeMixers.size > 0) {
+        if (aHave === 0 && bHave > 0) return 1;
+        if (bHave === 0 && aHave > 0) return -1;
+      }
+      return matchScore(b) - matchScore(a);
+    });
+  }, [recipes, activeMixers, filterMode, showFavOnly, showVerifiedOnly, showWantToTryOnly, ingFilter, searchText, tagFilters, sortOrder]);
 
   // Close tag dropdown on outside click
   useEffect(() => {
@@ -1655,13 +1682,6 @@ export default function CocktailGuide() {
       .sort((a, b) => b.recipes.length - a.recipes.length || a.name.localeCompare(b.name));
   }, [recipes, selectedMixers]);
 
-  const matchScore = (r) => {
-    if (activeMixers.size === 0) return 0;
-    const total = r.ingredients.filter(i => i.oz !== null || i.displayAmt !== "garnish").length || r.ingredients.length;
-    const have = r.ingredients.filter(i => activeMixers.has(i.name)).length;
-    return total === 0 ? 0 : have / total;
-  };
-
   const COLORS = ["#ffb3ba","#ffdfba","#ffffba","#baffc9","#bae1ff","#e8baff","#ffd6ff","#b5ead7","#c7ceea","#ffdac1","#d7ccc8","#a5d6a7"];
 
   // Unit toggle + servings controls (shown in detail view)
@@ -1929,12 +1949,12 @@ export default function CocktailGuide() {
                   cursor:"pointer", fontSize:11, fontFamily:"inherit", letterSpacing:0.5,
                 }} title="Filter by ingredients without saving to My Bar">🧪 Filter</button>
                 <div style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
-                  <input placeholder="Search" value={search} onChange={e => { setSearch(e.target.value); setIngFilter(null); }} style={{
+                  <input placeholder="Search" value={searchInput} onChange={e => { setSearchInput(e.target.value); setIngFilter(null); }} style={{
                     padding:"7px 28px 7px 12px", borderRadius:16, border:"1px solid "+t.inputBorder,
                     background:t.inputBg, color:t.textPrimary, fontSize:12, fontFamily:"inherit", outline:"none", width:130,
                   }}/>
-                  {search && (
-                    <button onClick={() => setSearch("")} style={{
+                  {searchInput && (
+                    <button onClick={() => setSearchInput("")} style={{
                       position:"absolute", right:7, background:"none", border:"none",
                       cursor:"pointer", padding:0, display:"flex", alignItems:"center",
                       color:t.textMuted, opacity:0.6,
@@ -2101,16 +2121,7 @@ export default function CocktailGuide() {
               </div>
             ) : (
               <div ref={cardGridRef} style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>
-                {[...filteredRecipes].sort((a,b) => {
-                    if (sortOrder === "az") return a.name.localeCompare(b.name);
-                    const aHave = activeMixers.size === 0 ? 1 : a.ingredients.filter(i => activeMixers.has(i.name)).length;
-                    const bHave = activeMixers.size === 0 ? 1 : b.ingredients.filter(i => activeMixers.has(i.name)).length;
-                    if (filterMode === "any" && activeMixers.size > 0) {
-                      if (aHave === 0 && bHave > 0) return 1;
-                      if (bHave === 0 && aHave > 0) return -1;
-                    }
-                    return matchScore(b) - matchScore(a);
-                  }).map(r => {
+                {filteredRecipes.map(r => {
                   const score = matchScore(r);
                   const total = r.ingredients.length;
                   const have = activeMixers.size === 0 ? 0 : r.ingredients.filter(i => activeMixers.has(i.name)).length;
