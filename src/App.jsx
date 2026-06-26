@@ -1215,7 +1215,6 @@ export default function CocktailGuide() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
-  const [customVisuals, setCustomVisuals] = useState({});
   const [editVis, setEditVis] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);  const [generateVisLoading, setGenerateVisLoading] = useState(false);
   const [sessionMixers, setSessionMixers] = useState(new Set());
@@ -1501,20 +1500,11 @@ export default function CocktailGuide() {
     setAutofilling(false);
   };
 
-  const generateVisual = async () => { const name = editForm?.name?.trim(); if (!name) return; setGenerateVisLoading(true); try { const res = await fetch('/api/generate-visual', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, glass: editForm.glass, color: editForm.color, garnish: editForm.garnish, ingredients: editForm.ingredients }) }); const data = await res.json(); if (!res.ok) throw new Error(data.error || 'API error'); if (data.vis) setEditVis(data.vis); } catch (e) { console.error('generate-visual error:', e.message); } setGenerateVisLoading(false); };  // Populate customVisuals from DB whenever recipes load
-  useEffect(() => {
-    if (recipes.length > 0) {
-      setCustomVisuals(prev => {
-        const next = {...prev};
-        recipes.forEach(r => { if (r.visual && !next[r.id]) next[r.id] = r.visual; });
-        return next;
-      });
-    }
-  }, [recipes]);
+  const generateVisual = async () => { const name = editForm?.name?.trim(); if (!name) return; setGenerateVisLoading(true); try { const res = await fetch('/api/generate-visual', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, glass: editForm.glass, color: editForm.color, garnish: editForm.garnish, ingredients: editForm.ingredients }) }); const data = await res.json(); if (!res.ok) throw new Error(data.error || 'API error'); if (data.vis) setEditVis(data.vis); } catch (e) { console.error('generate-visual error:', e.message); } setGenerateVisLoading(false); };
 
     const openEdit = (r) => {
     setEditForm({...r, ingredients: r.ingredients.map(i => ({...i}))});
-    const existing = customVisuals[r.id] || r.visual || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
+    const existing = r.visual || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
     setEditVis({...existing});
     setView("edit");
   };
@@ -1535,7 +1525,7 @@ export default function CocktailGuide() {
       id: newId, name: r.name + " (Variant)", favorite: false, verified: false, notes: "",
       variantOf: rootId, variantName: "", created_by: userName || null };
     setEditForm(form);
-    const existingVis = customVisuals[r.id] || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
+    const existingVis = r.visual || DRINK_VISUALS[r.name] || defaultVis(r.glass, r.color);
     setEditVis({...existingVis});
     setNewIngName(""); setNewIngAmt("");
     setView("create");
@@ -1545,7 +1535,6 @@ export default function CocktailGuide() {
     if (!editForm.name.trim()) return;
     const {_variantSearch, ...cleanForm} = editForm;
     const formWithVis = {...cleanForm, visual: editVis || null};
-    if (editVis) setCustomVisuals(prev => ({...prev, [editForm.id]: editVis}));
     if (view === "create") {
       const created = await createRecipe(formWithVis);
       const savedRecipe = created ? { ...formWithVis, id: created.id } : formWithVis;
@@ -2126,7 +2115,7 @@ export default function CocktailGuide() {
                     onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"}
                     onMouseLeave={e => e.currentTarget.style.transform="translateY(0)"}>
                       <div style={{flexShrink:0,marginTop:2}}>
-                        <CocktailIllustration name={r.name} glass={r.glass} color={r.color} size={54} visOverride={customVisuals[r.id]||null} lightMode={lightMode}/>
+                        <CocktailIllustration name={r.name} glass={r.glass} color={r.color} size={54} visOverride={r.visual||null} lightMode={lightMode}/>
                       </div>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3}}>
@@ -2309,7 +2298,7 @@ export default function CocktailGuide() {
                 {/* Row 2: illustration + title */}
                 <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:10}}>
                   <div style={{flexShrink:0}}>
-                    <CocktailIllustration name={activeRecipe.name} glass={activeRecipe.glass} color={activeRecipe.color} size={80} visOverride={customVisuals[activeRecipe.id]||null} lightMode={lightMode}/>
+                    <CocktailIllustration name={activeRecipe.name} glass={activeRecipe.glass} color={activeRecipe.color} size={80} visOverride={activeRecipe.visual||null} lightMode={lightMode}/>
                   </div>
                   <div style={{minWidth:0,flex:1}}>
                     <h1 style={{margin:0,fontSize:26,color:t.textPrimary,fontFamily:fontDisplay,fontWeight:"400"}}>{activeRecipe.name}</h1>
@@ -2414,7 +2403,7 @@ export default function CocktailGuide() {
                             background:t.variantBg,
                             cursor:"pointer", fontFamily:"inherit", textAlign:"left",
                           }}>
-                            <CocktailIllustration name={v.name} glass={v.glass} color={v.color} size={36} visOverride={customVisuals[v.id]||null} lightMode={lightMode}/>
+                            <CocktailIllustration name={v.name} glass={v.glass} color={v.color} size={36} visOverride={v.visual||null} lightMode={lightMode}/>
                             <div>
                               <div style={{fontSize:12,color:t.textPrimary,fontWeight:"600"}}>{v.name}</div>
                               {v.variantName && <div style={{fontSize:10,color:t.infoMuted,fontStyle:"italic"}}>{v.variantName}</div>}
@@ -2548,7 +2537,7 @@ export default function CocktailGuide() {
                         // Currently linked — show linked recipe + unlink + label
                         <div>
                           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,padding:"8px 10px",borderRadius:8,background:"rgba(100,200,255,0.08)",border:"1px solid "+t.variantBorder}}>
-                            <CocktailIllustration name={rootRecipe.name} glass={rootRecipe.glass} color={rootRecipe.color} size={32} visOverride={customVisuals[rootRecipe.id]||null} lightMode={lightMode}/>
+                            <CocktailIllustration name={rootRecipe.name} glass={rootRecipe.glass} color={rootRecipe.color} size={32} visOverride={rootRecipe.visual||null} lightMode={lightMode}/>
                             <div style={{flex:1}}>
                               <div style={{fontSize:11,color:t.textPrimary,fontWeight:"bold"}}>{rootRecipe.name}</div>
                               <div style={{fontSize:10,color:t.infoMuted}}>Linked as variant of this recipe</div>
@@ -2596,7 +2585,7 @@ export default function CocktailGuide() {
                                     background:t.variantBg,
                                     cursor:"pointer",fontFamily:"inherit",textAlign:"left",
                                   }}>
-                                    <CocktailIllustration name={r.name} glass={r.glass} color={r.color} size={28} visOverride={customVisuals[r.id]||null} lightMode={lightMode}/>
+                                    <CocktailIllustration name={r.name} glass={r.glass} color={r.color} size={28} visOverride={r.visual||null} lightMode={lightMode}/>
                                     <div>
                                       <div style={{fontSize:12,color:t.textPrimary,fontWeight:"500"}}>{r.name}</div>
                                       <div style={{fontSize:10,color:t.infoMuted}}>{(r.tags||[]).join(" · ")} · {r.glass}</div>
