@@ -35,10 +35,20 @@ export function useSupabase() {
 
   const loadAll = async () => {
     try {
-      const { data: recipeRows, error: re } = await supabase.from("recipes").select("*").order("id");
+      const [
+        { data: recipeRows, error: re },
+        { data: stateRows, error: se },
+        { data: barRows, error: be },
+        { data: mixerRows, error: me },
+        { data: profileRow },
+      ] = await Promise.all([
+        supabase.from("recipes").select("*").order("id"),
+        supabase.from("recipe_state").select("*").eq("user_id", userId),
+        supabase.from("bar_state").select("*").eq("user_id", userId),
+        supabase.from("mixers").select("*"),
+        supabase.from("profiles").select("is_owner").eq("id", userId).single(),
+      ]);
       if (re) throw re;
-
-      const { data: stateRows, error: se } = await supabase.from("recipe_state").select("*").eq("user_id", userId);
       if (se) throw se;
 
       const stateMap = {};
@@ -56,7 +66,6 @@ export function useSupabase() {
         }));
       setRecipes(merged);
 
-      const { data: barRows, error: be } = await supabase.from("bar_state").select("*").eq("user_id", userId);
       if (be) throw be;
 
       const barRow = (barRows || []).find(b => b.key === "selected_mixers");
@@ -64,7 +73,6 @@ export function useSupabase() {
       const activeRow = (barRows || []).find(b => b.key === "bar_filter_active");
       if (activeRow?.value) { try { setBarFilterActive(JSON.parse(activeRow.value)); } catch {} }
 
-      const { data: mixerRows, error: me } = await supabase.from("mixers").select("*");
       if (me) throw me;
       const cats = {};
       (mixerRows || []).forEach(m => {
@@ -72,8 +80,8 @@ export function useSupabase() {
         cats[m.category].push(m.name);
       });
       setMixerCategories(cats);
-              const { data: profileRow } = await supabase.from("profiles").select("is_owner").eq("id", userId).single();
-              setIsOwner(profileRow?.is_owner ?? false);
+
+      setIsOwner(profileRow?.is_owner ?? false);
 
     } catch (err) {
       setDbError(err.message);
