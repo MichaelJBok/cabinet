@@ -741,7 +741,7 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
         const a = nodes[i], b = nodes[j];
         let shared = 0;
         a.ings.forEach(ing => { if (b.ings.has(ing)) shared++; });
-        if (shared < 2) continue;
+        if (shared < 3) continue;
         const union = new Set([...a.ings,...b.ings]).size;
         const jaccard = shared / union;
         candidateEdges.push({ source: a, target: b, shared, jaccard });
@@ -749,14 +749,14 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
     }
     candidateEdges.sort((a,b) => b.jaccard - a.jaccard);
 
-    // Each node gets at most 6 strongest connections
+    // Each node gets at most 4 strongest connections
     const degree = {};
     const kept = [];
     candidateEdges.forEach(e => {
       const si = e.source.id, ti = e.target.id;
       degree[si] = (degree[si]||0);
       degree[ti] = (degree[ti]||0);
-      if (degree[si] < 6 && degree[ti] < 6) {
+      if (degree[si] < 4 && degree[ti] < 4) {
         kept.push(e);
         degree[si]++; degree[ti]++;
       }
@@ -781,90 +781,138 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
         shared: e.shared,
       }));
 
-      // Place tag group centers — use primaryTag to skip era tags
-      const tagList = [...new Set(nodes.flatMap(n => primaryTag(n.tags)).filter(Boolean))];
-      const tagCenters = {};
-      tagList.forEach((tag, i) => {
-        const angle = (i / tagList.length) * Math.PI * 2 - Math.PI / 2;
-        const radius = Math.min(W, H) * 0.32;
-        tagCenters[tag] = { x: W/2 + radius * Math.cos(angle), y: H/2 + radius * Math.sin(angle) };
-      });
-
-      // Seed positions: cluster around primary tag center using golden-angle spiral per group
+      // Tag group sizes — tag territory needs to scale with population, not be split evenly,
+      // since some tags (e.g. "Sour") have 10x the members of others (e.g. "Shot").
       const tagCounts = {};
-      const tagIdx = {};
       nodes.forEach(n => {
         const tag = primaryTag(n.tags);
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
+      const tagList = [...new Set(nodes.flatMap(n => primaryTag(n.tags)).filter(Boolean))];
+
+      // Each tag gets a circular territory sized to actually fit its members at a legible
+      // spacing (circle-packing estimate), not an equal share of the canvas.
+      const NODE_SPACING = 24;
+      const MARGIN = 14;
+      const tagRadii = {};
+      tagList.forEach(tag => {
+        const area = tagCounts[tag] * Math.PI * (NODE_SPACING/2)**2 / 0.55;
+        tagRadii[tag] = Math.max(30, Math.sqrt(area / Math.PI));
+      });
+
+      // Place territory centers around a ring, giving each an angular share proportional to
+      // its own radius and clamping its distance so it can't be placed outside the canvas.
+      const totalRadius = tagList.reduce((a,t) => a + tagRadii[t], 0);
+      const nominalPackRadius = Math.min(W, H) * 0.28 + totalRadius * 0.22;
+      const tagCenters = {};
+      let angleCursor = -Math.PI / 2;
+      tagList.forEach(tag => {
+        const angleWidth = (tagRadii[tag] / totalRadius) * Math.PI * 2;
+        const angle = angleCursor + angleWidth / 2;
+        angleCursor += angleWidth;
+        const r = tagRadii[tag];
+        const cosA = Math.cos(angle), sinA = Math.sin(angle);
+        const maxDistX = Math.abs(cosA) > 0.02 ? (W/2 - MARGIN - r) / Math.abs(cosA) : Infinity;
+        const maxDistY = Math.abs(sinA) > 0.02 ? (H/2 - MARGIN - r) / Math.abs(sinA) : Infinity;
+        const dist = Math.min(nominalPackRadius, maxDistX, maxDistY);
+        tagCenters[tag] = { x: W/2 + dist * cosA, y: H/2 + dist * sinA };
+      });
+
+      // The angular allocation above is only a heuristic — nudge apart any territories that
+      // still overlap (cheap: at most a couple dozen tags) and re-clip to the canvas.
+      for (let iter = 0; iter < 150; iter++) {
+        for (let i = 0; i < tagList.length; i++) {
+          for (let j = i+1; j < tagList.length; j++) {
+            const a = tagList[i], b = tagList[j];
+            const ca = tagCenters[a], cb = tagCenters[b];
+            const dx = ca.x - cb.x, dy = ca.y - cb.y;
+            const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+            const needed = tagRadii[a] + tagRadii[b] + 6;
+            if (dist < needed) {
+              const push = (needed - dist) / 2;
+              const ux = dx/dist, uy = dy/dist;
+              ca.x += ux*push; ca.y += uy*push;
+              cb.x -= ux*push; cb.y -= uy*push;
+            }
+          }
+        }
+        tagList.forEach(tag => {
+          const c = tagCenters[tag], r = tagRadii[tag];
+          c.x = Math.max(r+MARGIN, Math.min(W-r-MARGIN, c.x));
+          c.y = Math.max(r+MARGIN, Math.min(H-r-MARGIN, c.y));
+        });
+      }
+
+      // Seed positions: golden-angle spiral within each tag's own territory
+      const tagIdx = {};
       nodes.forEach(n => {
         const tag = primaryTag(n.tags);
-        const center = tagCenters[tag] || { x: W/2, y: H/2 };
+        const center = tagCenters[tag];
         const idx = tagIdx[tag] = (tagIdx[tag] || 0);
         tagIdx[tag]++;
         const count = tagCounts[tag];
         const angle = idx * 2.399963;
-        const r = Math.sqrt(idx / Math.max(count, 1)) * Math.min(W, H) * 0.13 + 18;
-        n.x = Math.max(20, Math.min(W-20, center.x + r * Math.cos(angle)));
-        n.y = Math.max(20, Math.min(H-20, center.y + r * Math.sin(angle)));
+        const r = Math.sqrt(idx / Math.max(count, 1)) * (tagRadii[tag] - 10);
+        n.x = center.x + r * Math.cos(angle);
+        n.y = center.y + r * Math.sin(angle);
       });
 
-      // Relax: repel all pairs, pull along similarity edges (stronger jaccard = shorter rest
-      // length), and lightly tether each node to its tag center so groups stay legible.
-      // Starting from the spiral seed keeps this fast and free of the instability a cold
-      // random start would need many more iterations to settle.
-      const k = Math.sqrt((W * H) / Math.max(nodes.length, 1)) * 0.38;
-      const WALL_MARGIN = 40;
-      let temp = Math.min(W, H) * 0.06;
-      const ITERATIONS = 250;
+      // Relax: repel members of the same tag apart, pull along similarity edges (stronger
+      // jaccard = shorter rest length, works within or across tags), and hard-clamp every
+      // node to stay inside its own tag's territory circle. The clamp is what actually keeps
+      // this legible — it guarantees no group can sprawl into its neighbors or the canvas
+      // edge, no matter how the forces above net out.
+      const nodesByTag = {};
+      nodes.forEach(n => { (nodesByTag[primaryTag(n.tags)] ||= []).push(n); });
+      const SAME_TAG_K = 18;
+      let temp = 16;
+      const ITERATIONS = 350;
       for (let iter = 0; iter < ITERATIONS; iter++) {
         nodes.forEach(n => { n.fx = 0; n.fy = 0; });
 
-        for (let i = 0; i < nodes.length; i++) {
-          const a = nodes[i];
-          for (let j = i + 1; j < nodes.length; j++) {
-            const b = nodes[j];
-            const dx = a.x - b.x, dy = a.y - b.y;
-            const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
-            const force = (k * k) / dist;
-            const ux = dx / dist, uy = dy / dist;
-            a.fx += ux * force; a.fy += uy * force;
-            b.fx -= ux * force; b.fy -= uy * force;
+        Object.values(nodesByTag).forEach(group => {
+          for (let i = 0; i < group.length; i++) {
+            const a = group[i];
+            for (let j = i + 1; j < group.length; j++) {
+              const b = group[j];
+              const dx = a.x - b.x, dy = a.y - b.y;
+              const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+              const force = (SAME_TAG_K * SAME_TAG_K) / dist;
+              const ux = dx / dist, uy = dy / dist;
+              a.fx += ux * force; a.fy += uy * force;
+              b.fx -= ux * force; b.fy -= uy * force;
+            }
           }
-        }
+        });
 
         edges.forEach(e => {
           const a = e.source, b = e.target;
           const dx = a.x - b.x, dy = a.y - b.y;
           const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
-          const strength = 1 + e.jaccard * 4;
-          const force = (dist * dist / k) * strength;
+          const restLength = 60 - e.jaccard * 35;
+          const force = Math.max(-25, Math.min(25, 0.5 * (dist - restLength)));
           const ux = dx / dist, uy = dy / dist;
           a.fx -= ux * force; a.fy -= uy * force;
           b.fx += ux * force; b.fy += uy * force;
         });
 
         nodes.forEach(n => {
-          const center = tagCenters[primaryTag(n.tags)] || { x: W/2, y: H/2 };
-          n.fx += (center.x - n.x) * 0.07;
-          n.fy += (center.y - n.y) * 0.07;
-
-          // Soft containment: push back before nodes reach the hard edge, so
-          // outliers decelerate into the wall instead of stacking on it.
-          if (n.x < WALL_MARGIN) n.fx += (WALL_MARGIN - n.x) * 1.5;
-          if (n.x > W - WALL_MARGIN) n.fx -= (n.x - (W - WALL_MARGIN)) * 1.5;
-          if (n.y < WALL_MARGIN) n.fy += (WALL_MARGIN - n.y) * 1.5;
-          if (n.y > H - WALL_MARGIN) n.fy -= (n.y - (H - WALL_MARGIN)) * 1.5;
-        });
-
-        nodes.forEach(n => {
           const disp = Math.sqrt(n.fx*n.fx + n.fy*n.fy) || 0.01;
           const capped = Math.min(disp, temp);
-          n.x = Math.max(12, Math.min(W-12, n.x + (n.fx / disp) * capped));
-          n.y = Math.max(12, Math.min(H-12, n.y + (n.fy / disp) * capped));
+          n.x += (n.fx / disp) * capped;
+          n.y += (n.fy / disp) * capped;
+
+          const tag = primaryTag(n.tags);
+          const c = tagCenters[tag], r = tagRadii[tag] - 8;
+          const cdx = n.x - c.x, cdy = n.y - c.y;
+          const cdist = Math.sqrt(cdx*cdx + cdy*cdy);
+          if (cdist > r) {
+            n.x = c.x + (cdx / cdist) * r;
+            n.y = c.y + (cdy / cdist) * r;
+          }
         });
 
-        temp *= 0.97;
+        temp *= 0.985;
       }
       nodes.forEach(n => { delete n.fx; delete n.fy; });
 
