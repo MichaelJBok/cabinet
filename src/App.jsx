@@ -813,7 +813,8 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
       // length), and lightly tether each node to its tag center so groups stay legible.
       // Starting from the spiral seed keeps this fast and free of the instability a cold
       // random start would need many more iterations to settle.
-      const k = Math.sqrt((W * H) / Math.max(nodes.length, 1)) * 0.55;
+      const k = Math.sqrt((W * H) / Math.max(nodes.length, 1)) * 0.38;
+      const WALL_MARGIN = 40;
       let temp = Math.min(W, H) * 0.06;
       const ITERATIONS = 250;
       for (let iter = 0; iter < ITERATIONS; iter++) {
@@ -845,15 +846,22 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
 
         nodes.forEach(n => {
           const center = tagCenters[primaryTag(n.tags)] || { x: W/2, y: H/2 };
-          n.fx += (center.x - n.x) * 0.02;
-          n.fy += (center.y - n.y) * 0.02;
+          n.fx += (center.x - n.x) * 0.07;
+          n.fy += (center.y - n.y) * 0.07;
+
+          // Soft containment: push back before nodes reach the hard edge, so
+          // outliers decelerate into the wall instead of stacking on it.
+          if (n.x < WALL_MARGIN) n.fx += (WALL_MARGIN - n.x) * 1.5;
+          if (n.x > W - WALL_MARGIN) n.fx -= (n.x - (W - WALL_MARGIN)) * 1.5;
+          if (n.y < WALL_MARGIN) n.fy += (WALL_MARGIN - n.y) * 1.5;
+          if (n.y > H - WALL_MARGIN) n.fy -= (n.y - (H - WALL_MARGIN)) * 1.5;
         });
 
         nodes.forEach(n => {
           const disp = Math.sqrt(n.fx*n.fx + n.fy*n.fy) || 0.01;
           const capped = Math.min(disp, temp);
-          n.x = Math.max(20, Math.min(W-20, n.x + (n.fx / disp) * capped));
-          n.y = Math.max(20, Math.min(H-20, n.y + (n.fy / disp) * capped));
+          n.x = Math.max(12, Math.min(W-12, n.x + (n.fx / disp) * capped));
+          n.y = Math.max(12, Math.min(H-12, n.y + (n.fy / disp) * capped));
         });
 
         temp *= 0.97;
