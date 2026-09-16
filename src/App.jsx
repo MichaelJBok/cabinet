@@ -765,7 +765,7 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
     return { nodes, edges: kept };
   }, [recipes, filterTag]);
 
-  // Layout: deterministic tag-cluster positioning, no simulation needed
+  // Layout: tag-cluster seed positions, relaxed by a force pass driven by ingredient similarity
   useEffect(() => {
     let cancelled = false;
 
@@ -790,7 +790,7 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
         tagCenters[tag] = { x: W/2 + radius * Math.cos(angle), y: H/2 + radius * Math.sin(angle) };
       });
 
-      // Place nodes: cluster around their primary tag center using golden-angle spiral per group
+      // Seed positions: cluster around primary tag center using golden-angle spiral per group
       const tagCounts = {};
       const tagIdx = {};
       nodes.forEach(n => {
@@ -808,6 +808,57 @@ function ClusterMap({ recipes, lightMode, onSelectRecipe, t }) {
         n.x = Math.max(20, Math.min(W-20, center.x + r * Math.cos(angle)));
         n.y = Math.max(20, Math.min(H-20, center.y + r * Math.sin(angle)));
       });
+
+      // Relax: repel all pairs, pull along similarity edges (stronger jaccard = shorter rest
+      // length), and lightly tether each node to its tag center so groups stay legible.
+      // Starting from the spiral seed keeps this fast and free of the instability a cold
+      // random start would need many more iterations to settle.
+      const k = Math.sqrt((W * H) / Math.max(nodes.length, 1)) * 0.55;
+      let temp = Math.min(W, H) * 0.06;
+      const ITERATIONS = 250;
+      for (let iter = 0; iter < ITERATIONS; iter++) {
+        nodes.forEach(n => { n.fx = 0; n.fy = 0; });
+
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const dx = a.x - b.x, dy = a.y - b.y;
+            const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+            const force = (k * k) / dist;
+            const ux = dx / dist, uy = dy / dist;
+            a.fx += ux * force; a.fy += uy * force;
+            b.fx -= ux * force; b.fy -= uy * force;
+          }
+        }
+
+        edges.forEach(e => {
+          const a = e.source, b = e.target;
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+          const strength = 1 + e.jaccard * 4;
+          const force = (dist * dist / k) * strength;
+          const ux = dx / dist, uy = dy / dist;
+          a.fx -= ux * force; a.fy -= uy * force;
+          b.fx += ux * force; b.fy += uy * force;
+        });
+
+        nodes.forEach(n => {
+          const center = tagCenters[primaryTag(n.tags)] || { x: W/2, y: H/2 };
+          n.fx += (center.x - n.x) * 0.02;
+          n.fy += (center.y - n.y) * 0.02;
+        });
+
+        nodes.forEach(n => {
+          const disp = Math.sqrt(n.fx*n.fx + n.fy*n.fy) || 0.01;
+          const capped = Math.min(disp, temp);
+          n.x = Math.max(20, Math.min(W-20, n.x + (n.fx / disp) * capped));
+          n.y = Math.max(20, Math.min(H-20, n.y + (n.fy / disp) * capped));
+        });
+
+        temp *= 0.97;
+      }
+      nodes.forEach(n => { delete n.fx; delete n.fy; });
 
       nodesRef.current = nodes;
       linksRef.current = edges;
