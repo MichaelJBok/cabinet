@@ -64,7 +64,7 @@ function AuthGate({ children }) {
         background: "#161b27", border: "1px solid rgba(201,169,110,0.2)",
         boxShadow: "0 12px 48px rgba(0,0,0,0.4)", minWidth: 300, maxWidth: 360,
       }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>🍸</div>
+        <img src="/icon.svg" alt="" style={{ width: 40, height: 40, marginBottom: 16, borderRadius: 10 }}/>
         <div style={{
           fontFamily: "'DM Serif Display', Georgia, serif",
           fontSize: 22, color: "#c9a96e", marginBottom: 8, letterSpacing: 1,

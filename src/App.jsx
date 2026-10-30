@@ -1850,7 +1850,7 @@ export default function CocktailGuide() {
   if (!userId) return (
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#0d1117",fontFamily:"'DM Sans', system-ui, sans-serif"}}>
       <div style={{textAlign:"center",color:"#c9a96e"}}>
-        <div style={{fontSize:48,marginBottom:16}}>🍸</div>
+        <img src="/icon.svg" alt="" style={{width:48,height:48,marginBottom:16,borderRadius:10}}/>
         <div style={{fontSize:16,letterSpacing:2}}>LOADING THE CABINET…</div>
         {dbError && <div style={{fontSize:12,color:"#ff8080",marginTop:12}}>{dbError}</div>}
       </div>
@@ -1861,7 +1861,7 @@ export default function CocktailGuide() {
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",
       background:t.bg, fontFamily:fontBody, color:t.textPrimary}}>
       <div style={{textAlign:"center",color:t.textSecond}}>
-        <div style={{fontSize:48,marginBottom:16}}>🍸</div>
+        <img src="/icon.svg" alt="" style={{width:48,height:48,marginBottom:16,borderRadius:10}}/>
         <div style={{fontSize:16,letterSpacing:2}}>Loading…</div>
         {dbError && <div style={{fontSize:12,color:t.dangerColor,marginTop:12}}>{dbError}</div>}
       </div>
@@ -1878,7 +1878,7 @@ export default function CocktailGuide() {
         display:"flex", alignItems:"center", justifyContent:"space-between",
         background:t.headerBg, backdropFilter:"blur(10px)", position:"sticky", top:0, zIndex:100 }}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <span style={{fontSize:28}}>🍸</span>
+          <img src="/icon.svg" alt="" style={{width:28,height:28,borderRadius:6}}/>
           <div>
             <div style={{fontSize:19,fontWeight:"bold",color:t.accent,letterSpacing:2,fontFamily:fontDisplay}}>The Cabinet</div>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
