@@ -1521,19 +1521,19 @@ export default function CocktailGuide() {
               </div>
             )}
             <div style={{flex:1,minWidth:0}}>
-            {/* Filter bar — two fixed rows */}
+            {/* Filter bar — single scrollable row + results line below */}
             <div style={{marginBottom:14}}>
               {/* Single filter row */}
-              <div style={{display:"flex",gap:7,alignItems:"center",flexWrap:"wrap"}}>
+              <div style={{display:"flex",gap:7,alignItems:"center",flexWrap:"nowrap",overflowX:"auto",paddingBottom:4,WebkitOverflowScrolling:"touch"}}>
                 {/* Sidebar toggle */}
                 <button onClick={() => setShowSidebar(s => !s)} style={{
                   padding:"7px 11px", borderRadius:16, border:"1px solid",
                   borderColor: showSidebar ? t.accentBorder : t.btnBorder,
                   background: showSidebar ? t.accentBg : "transparent",
                   color: showSidebar ? t.accent : t.textSecond,
-                  cursor:"pointer", fontSize:11, fontFamily:"inherit", letterSpacing:0.5,
+                  cursor:"pointer", fontSize:11, fontFamily:"inherit", letterSpacing:0.5, flexShrink:0,
                 }} title="Filter by ingredients without saving to My Bar">🧪 Filter</button>
-                <div style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
+                <div style={{position:"relative",display:"inline-flex",alignItems:"center",flexShrink:0}}>
                   <input placeholder="Search" value={searchInput} onChange={e => { setSearchInput(e.target.value); setIngFilter(null); }} style={{
                     padding:"7px 28px 7px 12px", borderRadius:16, border:"1px solid "+t.inputBorder,
                     background:t.inputBg, color:t.textPrimary, fontSize:12, fontFamily:"inherit", outline:"none", width:130,
@@ -1549,7 +1549,7 @@ export default function CocktailGuide() {
                   )}
                 </div>
                 {/* Cocktail Type dropdown button */}
-                <div data-tag-dropdown style={{position:"relative"}}>
+                <div data-tag-dropdown style={{position:"relative",flexShrink:0}}>
                   <button onClick={() => setShowTagDropdown(p => !p)} style={{
                     padding:"4px 12px", borderRadius:14, border:"1px solid",
                     borderColor: tagFilters.size > 0 ? t.accent : t.btnBorder,
@@ -1604,8 +1604,8 @@ export default function CocktailGuide() {
                     </div>
                   )}
                 </div>
-                                 {/* Bar items + match any/all + ingredient filter + sort + toggles + count */}
-                <div style={{display:"flex",gap:4,alignItems:"center",flexWrap:"wrap",marginLeft:4}}>
+                                 {/* Bar items + match any/all + ingredient filter + sort + toggles */}
+                <div style={{display:"flex",gap:4,alignItems:"center",flexWrap:"nowrap",flexShrink:0,marginLeft:4}}>
                   {selectedMixers.size > 0 && !showSidebar ? (
                     <div style={{display:"flex",alignItems:"center",gap:0,borderRadius:12,border:"1px solid",
                       borderColor: barFilterActive ? t.accentBorder : (lightMode?"rgba(0,0,0,0.2)":"rgba(255,255,255,0.2)"),
@@ -1693,9 +1693,9 @@ export default function CocktailGuide() {
                       {shoppingList.length > 0 ? `${shoppingList.length} to buy` : "all stocked"}
                     </button>
                   )}
-                  <span style={{color:t.textSecond,fontSize:11,whiteSpace:"nowrap",marginLeft:8}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</span>
                 </div>{/* end filter row */}
               </div>{/* end filter flex row */}
+              <div style={{color:t.textSecond,fontSize:11,marginTop:6}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</div>
             </div>{/* end filter row div */}
             </div>{/* end filter bar wrapper */}
 
