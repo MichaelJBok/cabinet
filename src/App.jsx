@@ -1755,7 +1755,7 @@ export default function CocktailGuide() {
                                 return (
                                   <span key={name} onClick={e=>{e.stopPropagation();setIngFilter(f=>f===name?null:name);setView("browse");}} style={{
                                     padding:"2px 5px", borderRadius:6, fontSize:9, height:20,
-                                    display:"inline-flex", alignItems:"center", gap:2,
+                                    display:"inline-flex", alignItems:"center",
                                     background: isFiltered ? (lightMode?"rgba(80,120,220,0.1)":"rgba(120,160,255,0.2)") : isInBar ? r.color+"80" : "transparent",
                                     border:"1px solid " + borderColor,
                                     borderWidth: isInBar && !isFiltered ? 1.5 : 1,
@@ -1763,7 +1763,7 @@ export default function CocktailGuide() {
                                     fontWeight: isInBar && !isFiltered ? 600 : 400,
                                     opacity: isInBar || isFiltered ? 1 : 0.7,
                                     whiteSpace:"nowrap", cursor:"pointer",
-                                  }}>{isInBar && !isFiltered && <span style={{fontSize:8}}>✓</span>}{name}</span>
+                                  }}>{name}</span>
                                 );
                               })}
                               {extra > 0 && (
