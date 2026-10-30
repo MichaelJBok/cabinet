@@ -1755,12 +1755,15 @@ export default function CocktailGuide() {
                                 return (
                                   <span key={name} onClick={e=>{e.stopPropagation();setIngFilter(f=>f===name?null:name);setView("browse");}} style={{
                                     padding:"2px 5px", borderRadius:6, fontSize:9, height:20,
-                                    display:"inline-flex", alignItems:"center",
-                                    background: isFiltered ? (lightMode?"rgba(80,120,220,0.1)":"rgba(120,160,255,0.2)") : isInBar ? r.color+"55" : "transparent",
+                                    display:"inline-flex", alignItems:"center", gap:2,
+                                    background: isFiltered ? (lightMode?"rgba(80,120,220,0.1)":"rgba(120,160,255,0.2)") : isInBar ? r.color+"80" : "transparent",
                                     border:"1px solid " + borderColor,
-                                    color: isFiltered ? (lightMode?"#3050c0":"#a0b8ff") : isInBar ? (lightMode ? "#2a1a05" : "#f0e6d3") : (lightMode?"#6a5040":"#a09080"),
+                                    borderWidth: isInBar && !isFiltered ? 1.5 : 1,
+                                    color: isFiltered ? (lightMode?"#3050c0":"#a0b8ff") : isInBar ? (lightMode ? "#1a1004" : "#fff8ec") : (lightMode?"#6a5040":"#a09080"),
+                                    fontWeight: isInBar && !isFiltered ? 600 : 400,
+                                    opacity: isInBar || isFiltered ? 1 : 0.7,
                                     whiteSpace:"nowrap", cursor:"pointer",
-                                  }}>{name}</span>
+                                  }}>{isInBar && !isFiltered && <span style={{fontSize:8}}>✓</span>}{name}</span>
                                 );
                               })}
                               {extra > 0 && (
