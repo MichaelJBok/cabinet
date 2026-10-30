@@ -780,6 +780,7 @@ export default function CocktailGuide() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [editVis, setEditVis] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);  const [generateVisLoading, setGenerateVisLoading] = useState(false);
   const [sessionMixers, setSessionMixers] = useState(new Set());
@@ -927,6 +928,16 @@ export default function CocktailGuide() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showTagDropdown]);
+
+  // Close header overflow menu on outside click
+  useEffect(() => {
+    if (!showHeaderMenu) return;
+    const handler = (e) => {
+      if (!e.target.closest("[data-header-menu]")) setShowHeaderMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showHeaderMenu]);
 
   // Track card grid width for chip fitting
   useEffect(() => {
@@ -1357,51 +1368,62 @@ export default function CocktailGuide() {
             background:t.accentBg, color:t.accent,
             cursor:"pointer", fontSize:11, letterSpacing:1, fontFamily:"inherit",
           }}>+ New</button>
-          {/* Divider */}
-          <div style={{width:1,height:20,background:t.btnBorder,margin:"0 2px"}}/>
-          {/* Zoom slider */}
-          <div style={{display:"flex",alignItems:"center",gap:5}}>
-            <span style={{fontSize:10,color:t.textMuted,userSelect:"none"}}>🔍</span>
-            <input type="range" min="0.7" max="1.4" step="0.05" value={zoom}
-              onChange={e => setZoom(parseFloat(e.target.value))}
-              title={"Zoom: " + Math.round(zoom*100) + "%"}
-              style={{width:72, cursor:"pointer", accentColor:t.accent}}
-            />
-            <span style={{fontSize:9,color:t.textMuted,width:28,textAlign:"left",userSelect:"none"}}>{Math.round(zoom*100)}%</span>
+          {/* Overflow menu: zoom, export, theme, account, sign out, reset */}
+          <div data-header-menu style={{position:"relative"}}>
+            <button onClick={() => setShowHeaderMenu(p => !p)} title="More options" style={{
+              padding:"6px 12px", borderRadius:16, border:"1px solid "+t.btnBorder,
+              background: showHeaderMenu ? t.accentBg : "transparent",
+              color: showHeaderMenu ? t.accent : t.textSecond,
+              cursor:"pointer", fontSize:15, fontFamily:"inherit", lineHeight:1,
+            }}>⋯</button>
+            {showHeaderMenu && (
+              <div style={{
+                position:"absolute", top:"calc(100% + 6px)", right:0, zIndex:200,
+                background: lightMode ? "#fffdf7" : "#1a1f35",
+                border:"1px solid "+t.cardBorder, borderRadius:12,
+                padding:10, minWidth:230,
+                boxShadow:"0 8px 32px rgba(0,0,0,0.25)",
+                display:"flex", flexDirection:"column", gap:2,
+              }}>
+                {/* Zoom slider */}
+                <div style={{display:"flex",alignItems:"center",gap:8,padding:"6px 8px"}}>
+                  <span style={{fontSize:11,color:t.textSecond,userSelect:"none",whiteSpace:"nowrap"}}>🔍 Zoom</span>
+                  <input type="range" min="0.7" max="1.4" step="0.05" value={zoom}
+                    onChange={e => setZoom(parseFloat(e.target.value))}
+                    style={{flex:1, cursor:"pointer", accentColor:t.accent}}
+                  />
+                  <span style={{fontSize:10,color:t.textMuted,width:32,textAlign:"right",userSelect:"none"}}>{Math.round(zoom*100)}%</span>
+                </div>
+                <div style={{height:1,background:t.cardBorder,margin:"4px 0"}}/>
+                <button onClick={() => { handleExport(); setShowHeaderMenu(false); }} style={{
+                  display:"flex",alignItems:"center",gap:8,padding:"8px", borderRadius:8, border:"none",
+                  background:"transparent", color:t.textSecond,
+                  cursor:"pointer", fontSize:12, fontFamily:"inherit", textAlign:"left",
+                }}>⬇ Export library</button>
+                <button onClick={() => { setLightMode(!lightMode); setShowHeaderMenu(false); }} style={{
+                  display:"flex",alignItems:"center",gap:8,padding:"8px", borderRadius:8, border:"none",
+                  background:"transparent", color:t.textSecond,
+                  cursor:"pointer", fontSize:12, fontFamily:"inherit", textAlign:"left",
+                }}>{lightMode ? "🌙 Switch to dark mode" : "☀️ Switch to light mode"}</button>
+                <button onClick={() => { setShowNamePrompt(true); setShowHeaderMenu(false); }} style={{
+                  display:"flex",alignItems:"center",gap:8,padding:"8px", borderRadius:8, border:"none",
+                  background:"transparent", color: userName ? t.accent : t.textSecond,
+                  cursor:"pointer", fontSize:12, fontFamily:"inherit", textAlign:"left",
+                }}>👤 {userName || "Set display name"}</button>
+                <div style={{height:1,background:t.cardBorder,margin:"4px 0"}}/>
+                <button onClick={() => { signOut(); setShowHeaderMenu(false); }} style={{
+                  display:"flex",alignItems:"center",gap:8,padding:"8px", borderRadius:8, border:"none",
+                  background:"transparent", color:t.textMuted,
+                  cursor:"pointer", fontSize:12, fontFamily:"inherit", textAlign:"left",
+                }}>Sign out</button>
+                <button onClick={() => { setShowHeaderMenu(false); handleReset(); }} style={{
+                  display:"flex",alignItems:"center",gap:8,padding:"8px", borderRadius:8, border:"none",
+                  background:"transparent", color:t.resetColor,
+                  cursor:"pointer", fontSize:12, fontFamily:"inherit", textAlign:"left",
+                }}>↺ Reset to factory defaults</button>
+              </div>
+            )}
           </div>
-          {/* Divider */}
-          <div style={{width:1,height:20,background:t.btnBorder,margin:"0 2px"}}/>
-          <button onClick={handleExport} title="Download your library as a JSON file" style={{
-            padding:"6px 11px", borderRadius:16, border:"1px solid "+t.inputBorder,
-            background:"transparent", color:t.textSecond,
-            cursor:"pointer", fontSize:11, fontFamily:"inherit",
-          }}>⬇ Export</button>
-          {/* Light/Dark toggle */}
-          <button onClick={() => setLightMode(!lightMode)} title={lightMode ? "Switch to dark mode" : "Switch to light mode"} style={{
-            padding:"6px 10px", borderRadius:16, border:"1px solid "+t.btnBorder,
-            background: lightMode ? t.accentBg : "transparent",
-            color:t.textSecond, cursor:"pointer", fontSize:13, fontFamily:"inherit",
-          }}>{lightMode ? "🌙" : "☀️"}</button>
-          {/* Name */}
-          <button onClick={() => setShowNamePrompt(true)} title="Set your display name" style={{
-            padding:"6px 10px", borderRadius:16, border:"1px solid "+t.btnBorder,
-            background: userName ? t.accentBg : "transparent",
-            color: userName ? t.accent : t.textMuted,
-            cursor:"pointer", fontSize:11, fontFamily:"inherit", maxWidth:90,
-            overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap",
-          }}>{userName || "👤"}</button>
-          {/* Sign out */}
-          <button onClick={signOut} title="Sign out" style={{
-            padding:"6px 10px", borderRadius:16, border:"1px solid "+t.btnBorder,
-            background:"transparent", color:t.textMuted,
-            cursor:"pointer", fontSize:11, fontFamily:"inherit",
-          }}>Sign out</button>
-          {/* Reset */}
-          <button onClick={handleReset} title="Reset to factory defaults" style={{
-            padding:"6px 8px", borderRadius:16, border:"1px solid rgba(255,100,100,0.25)",
-            background:"transparent", color:t.resetColor,
-            cursor:"pointer", fontSize:11, fontFamily:"inherit",
-          }}>↺</button>
         </div>
       </header>
 
