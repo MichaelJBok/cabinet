@@ -1521,42 +1521,42 @@ export default function CocktailGuide() {
               </div>
             )}
             <div style={{flex:1,minWidth:0}}>
-            {/* Filter bar — single scrollable row + results line below */}
+            {/* Filter bar — wraps across rows, chips kept compact */}
             <div style={{marginBottom:14}}>
               {/* Single filter row */}
-              <div style={{display:"flex",gap:7,alignItems:"center",flexWrap:"nowrap",overflowX:"auto",paddingBottom:4,WebkitOverflowScrolling:"touch"}}>
+              <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
                 {/* Sidebar toggle */}
                 <button onClick={() => setShowSidebar(s => !s)} style={{
-                  padding:"7px 11px", borderRadius:16, border:"1px solid",
+                  padding:"5px 9px", borderRadius:14, border:"1px solid",
                   borderColor: showSidebar ? t.accentBorder : t.btnBorder,
                   background: showSidebar ? t.accentBg : "transparent",
                   color: showSidebar ? t.accent : t.textSecond,
-                  cursor:"pointer", fontSize:11, fontFamily:"inherit", letterSpacing:0.5, flexShrink:0,
+                  cursor:"pointer", fontSize:10, fontFamily:"inherit", letterSpacing:0.5,
                 }} title="Filter by ingredients without saving to My Bar">🧪 Filter</button>
-                <div style={{position:"relative",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+                <div style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
                   <input placeholder="Search" value={searchInput} onChange={e => { setSearchInput(e.target.value); setIngFilter(null); }} style={{
-                    padding:"7px 28px 7px 12px", borderRadius:16, border:"1px solid "+t.inputBorder,
-                    background:t.inputBg, color:t.textPrimary, fontSize:12, fontFamily:"inherit", outline:"none", width:130,
+                    padding:"5px 24px 5px 10px", borderRadius:14, border:"1px solid "+t.inputBorder,
+                    background:t.inputBg, color:t.textPrimary, fontSize:11, fontFamily:"inherit", outline:"none", width:104,
                   }}/>
                   {searchInput && (
                     <button onClick={() => setSearchInput("")} style={{
-                      position:"absolute", right:7, background:"none", border:"none",
+                      position:"absolute", right:6, background:"none", border:"none",
                       cursor:"pointer", padding:0, display:"flex", alignItems:"center",
                       color:t.textMuted, opacity:0.6,
                     }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                   )}
                 </div>
                 {/* Cocktail Type dropdown button */}
-                <div data-tag-dropdown style={{position:"relative",flexShrink:0}}>
+                <div data-tag-dropdown style={{position:"relative"}}>
                   <button onClick={() => setShowTagDropdown(p => !p)} style={{
-                    padding:"4px 12px", borderRadius:14, border:"1px solid",
+                    padding:"4px 9px", borderRadius:14, border:"1px solid",
                     borderColor: tagFilters.size > 0 ? t.accent : t.btnBorder,
                     background: tagFilters.size > 0 ? t.accentBg : "transparent",
                     color: tagFilters.size > 0 ? t.accent : t.textSecond,
                     cursor:"pointer", fontSize:10, fontFamily:"inherit", whiteSpace:"nowrap",
-                    display:"flex", alignItems:"center", gap:5,
+                    display:"flex", alignItems:"center", gap:4,
                   }}>
                     <span>Type{tagFilters.size > 0 ? ` (${tagFilters.size})` : ""}</span>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1604,92 +1604,78 @@ export default function CocktailGuide() {
                     </div>
                   )}
                 </div>
-                                 {/* Bar items + match any/all + ingredient filter + sort + toggles */}
-                <div style={{display:"flex",gap:4,alignItems:"center",flexWrap:"nowrap",flexShrink:0,marginLeft:4}}>
+                                 {/* Bar items + match mode + ingredient filter + sort + toggles */}
+                <div style={{display:"flex",gap:3,alignItems:"center",flexWrap:"wrap",marginLeft:2}}>
                   {selectedMixers.size > 0 && !showSidebar ? (
-                    <div style={{display:"flex",alignItems:"center",gap:0,borderRadius:12,border:"1px solid",
+                    <div style={{display:"flex",alignItems:"center",gap:0,borderRadius:11,border:"1px solid",
                       borderColor: barFilterActive ? t.accentBorder : (lightMode?"rgba(0,0,0,0.2)":"rgba(255,255,255,0.2)"),
                       background: barFilterActive ? t.accentBg : "transparent",
                       overflow:"hidden",
                     }}>
                       <button onClick={() => setBarFilterActive(v => !v)} style={{
                         background:"none",border:"none",cursor:"pointer",
-                        padding:"4px 10px",
-                        fontSize:10, fontFamily:"inherit",
+                        padding:"3px 8px",
+                        fontSize:9, fontFamily:"inherit",
                         color: barFilterActive ? t.accent : (lightMode?"#666":"#aaa"),
                         fontWeight: barFilterActive ? "600" : "400",
                       }}>🍶 {selectedMixers.size} bar items</button>
                       <button onClick={() => { setSelectedMixers(new Set()); setBarFilterActive(true); }} style={{
                         background:"none",border:"none",borderLeft:"1px solid",
                         borderColor: barFilterActive ? t.accentBorder : (lightMode?"rgba(0,0,0,0.15)":"rgba(255,255,255,0.15)"),
-                        color:t.dangerColor,cursor:"pointer",fontSize:12,padding:"4px 7px",lineHeight:1
+                        color:t.dangerColor,cursor:"pointer",fontSize:11,padding:"3px 6px",lineHeight:1
                       }}>×</button>
                     </div>
                   ) : null}
                   {selectedMixers.size > 0 && !showSidebar && barFilterActive && (
-                    <div style={{display:"flex",gap:4}}>
-                      {["any","all"].map(m => (
-                        <button key={m} onClick={() => setFilterMode(m)} style={{
-                          padding:"5px 10px", borderRadius:12, border:"1px solid",
-                          borderColor: filterMode===m ? t.accent : (lightMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"),
-                          background: filterMode===m ? t.accentBg : "transparent",
-                          color: filterMode===m ? t.accent : (lightMode ? "#666" : "#aaa"),
-                          cursor:"pointer", fontSize:10, fontFamily:"inherit",
-                          fontWeight: filterMode===m ? "600" : "400",
-                        }}>Match {m}</button>
-                      ))}
-                    </div>
+                    <button onClick={() => setFilterMode(m => m === "any" ? "all" : "any")} title="Click to toggle between matching any or all selected bar items" style={{
+                      padding:"3px 8px", borderRadius:11, border:"1px solid "+(lightMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"),
+                      background:"transparent", color:(lightMode ? "#666" : "#aaa"),
+                      cursor:"pointer", fontSize:9, fontFamily:"inherit",
+                    }}>Match: {filterMode === "any" ? "Any" : "All"}</button>
                   )}
                   {ingFilter && (
-                    <div style={{display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:12,
+                    <div style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",borderRadius:11,
                       background:lightMode?"rgba(80,120,220,0.1)":"rgba(100,140,255,0.15)",
                       border:"1px solid "+(lightMode?"rgba(80,120,220,0.35)":"rgba(100,140,255,0.4)")}}>
-                      <span style={{fontSize:10,color:lightMode?"#3050c0":"#a0b8ff"}}>🧪 {ingFilter}</span>
-                      <button onClick={() => setIngFilter(null)} style={{background:"none",border:"none",color:t.dangerColor,cursor:"pointer",fontSize:12,padding:0,lineHeight:1}}>×</button>
+                      <span style={{fontSize:9,color:lightMode?"#3050c0":"#a0b8ff"}}>🧪 {ingFilter}</span>
+                      <button onClick={() => setIngFilter(null)} style={{background:"none",border:"none",color:t.dangerColor,cursor:"pointer",fontSize:11,padding:0,lineHeight:1}}>×</button>
                     </div>
                   )}
-                  <div style={{display:"flex",gap:4}}>
-                    {[["match","Best match"],["az","A–Z"]].map(([val,label]) => (
-                      <button key={val} onClick={() => setSortOrder(val)} style={{
-                        padding:"5px 10px", borderRadius:12, border:"1px solid",
-                        borderColor: sortOrder===val ? t.accent : (lightMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"),
-                        background: sortOrder===val ? t.accentBg : "transparent",
-                        color: sortOrder===val ? t.accent : (lightMode ? "#666" : "#aaa"),
-                        cursor:"pointer", fontSize:10, fontFamily:"inherit",
-                        fontWeight: sortOrder===val ? "600" : "400",
-                      }}>{label}</button>
-                    ))}
-                  </div>
-                  <div style={{display:"flex",gap:0,alignItems:"center",flexShrink:0}}>
+                  <button onClick={() => setSortOrder(o => o === "match" ? "az" : "match")} title="Click to toggle sort order" style={{
+                    padding:"3px 8px", borderRadius:11, border:"1px solid "+(lightMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"),
+                    background:"transparent", color:(lightMode ? "#666" : "#aaa"),
+                    cursor:"pointer", fontSize:9, fontFamily:"inherit",
+                  }}>Sort: {sortOrder === "match" ? "Best match" : "A–Z"}</button>
+                  <div style={{display:"flex",gap:0,alignItems:"center"}}>
                     <button onClick={() => setShowWantToTryOnly(v => !v)} title="Want to try" style={{
-                      width:28, height:28, borderRadius:10, border:"1px solid",
+                      width:24, height:24, borderRadius:9, border:"1px solid",
                       borderColor: showWantToTryOnly ? t.textSecond : "transparent",
                       background: "transparent",
                       cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
                       opacity: showWantToTryOnly ? 1 : 0.35,
-                    }}><svg width="14" height="14" viewBox="0 0 24 24" fill={showWantToTryOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg></button>
+                    }}><svg width="12" height="12" viewBox="0 0 24 24" fill={showWantToTryOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg></button>
                     {isOwner && <button onClick={() => setShowVerifiedOnly(v => !v)} title="Verified only" style={{
-                      width:28, height:28, borderRadius:10, border:"1px solid",
+                      width:24, height:24, borderRadius:9, border:"1px solid",
                       borderColor: showVerifiedOnly ? t.textSecond : "transparent",
                       background: "transparent",
                       cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
                       opacity: showVerifiedOnly ? 1 : 0.35,
-                    }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg></button>}
+                    }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={t.textSecond} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg></button>}
                     <button onClick={() => setShowFavOnly(!showFavOnly)} title="Favourites only" style={{
-                      width:28, height:28, borderRadius:10, border:"1px solid",
+                      width:24, height:24, borderRadius:9, border:"1px solid",
                       borderColor: showFavOnly ? t.textSecond : "transparent",
                       background: "transparent",
                       cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0,
                       opacity: showFavOnly ? 1 : 0.35,
-                    }}><svg width="15" height="15" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
+                    }}><svg width="13" height="13" viewBox="0 0 24 24" fill={showFavOnly?t.textSecond:"none"} stroke={t.textSecond} strokeWidth="2" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
                   {recipes.some(r => r.wantToTry) && (
                     <button onClick={() => setShowShoppingList(true)} title="Shopping list" style={{
-                      height:26, borderRadius:10, border:"1px solid "+t.cardBorder,
+                      height:24, borderRadius:9, border:"1px solid "+t.cardBorder,
                       background:"transparent", color:t.textSecond, cursor:"pointer",
-                      display:"flex", alignItems:"center", gap:5, padding:"0 9px",
-                      fontSize:11, fontFamily:"inherit", whiteSpace:"nowrap", flexShrink:0,
+                      display:"flex", alignItems:"center", gap:4, padding:"0 7px", marginLeft:3,
+                      fontSize:10, fontFamily:"inherit", whiteSpace:"nowrap",
                     }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                       {shoppingList.length > 0 ? `${shoppingList.length} to buy` : "all stocked"}
                     </button>
                   )}
