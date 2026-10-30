@@ -1693,10 +1693,10 @@ export default function CocktailGuide() {
                       {shoppingList.length > 0 ? `${shoppingList.length} to buy` : "all stocked"}
                     </button>
                   )}
-                </div>{/* end filter row */}
-              </div>{/* end filter flex row */}
+                </div>{/* end icon toggles group */}
+                </div>{/* end "everything else" group */}
+              </div>{/* end scrollable filter row */}
               <div style={{color:t.textSecond,fontSize:11,marginTop:6}}>{(() => { if (activeMixers.size > 0 && filterMode === "any") { const matching = filteredRecipes.filter(r => r.ingredients.some(i => activeMixers.has(i.name))).length; return `${matching} match · ${filteredRecipes.length - matching} others`; } return filteredRecipes.length + " cocktails"; })()}</div>
-            </div>{/* end filter row div */}
             </div>{/* end filter bar wrapper */}
 
             {filteredRecipes.length === 0 ? (
