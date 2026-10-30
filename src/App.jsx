@@ -191,13 +191,26 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
     const hover = s * 0.04;
     const gy2 = gy - hover;
     if (type === "lime" || type === "lemon" || type === "orange" || type === "grapefruit") {
-      const gc = type==="lime"?"#7ec850":type==="lemon"?"#f8d840":type==="orange"?"#f87830":"#f8b060";
-      const gDark = type==="lime"?"#4a8020":type==="lemon"?"#c8a010":type==="orange"?"#c04010":"#c87020";
+      // A citrus wedge — pie-slice cut from a wheel, perched on the rim.
+      // (A plain circle with a cross reads as a "+" badge, not a garnish — avoid that.)
+      const rind  = type==="lime"?"#5a9830":type==="lemon"?"#d8a810":type==="orange"?"#c05810":"#c87828";
+      const flesh = type==="lime"?"#b8e878":type==="lemon"?"#f8e070":type==="orange"?"#f8a050":"#f8c088";
+      const pith  = type==="lime"?"#eafac8":type==="lemon"?"#fdf6c4":type==="orange"?"#fde2c0":"#fde8d2";
+      const r = s * 0.13;
+      const a1 = -52, a2 = 108; // wedge sweep, degrees
+      const rad = d => d * Math.PI / 180;
+      const sx = gx + Math.cos(rad(a1))*r, sy = gy2 + Math.sin(rad(a1))*r;
+      const ex = gx + Math.cos(rad(a2))*r, ey = gy2 + Math.sin(rad(a2))*r;
+      const wedgePath = "M"+gx+","+gy2+" L"+sx+","+sy+" A"+r+","+r+" 0 0 1 "+ex+","+ey+" Z";
+      const arcPath = "M"+sx+","+sy+" A"+r+","+r+" 0 0 1 "+ex+","+ey;
+      const segAngles = [a1 + (a2-a1)*0.33, a1 + (a2-a1)*0.67];
       return <g>
-        <circle cx={gx} cy={gy2} r={s*0.1} fill={gc} opacity="0.95" stroke={gDark} strokeWidth="1"/>
-        <circle cx={gx} cy={gy2} r={s*0.065} fill={gc} opacity="0.35" stroke={gc} strokeWidth="0.8"/>
-        <line x1={gx-s*0.07} y1={gy2} x2={gx+s*0.07} y2={gy2} stroke="rgba(255,255,255,0.5)" strokeWidth="0.8"/>
-        <line x1={gx} y1={gy2-s*0.07} x2={gx} y2={gy2+s*0.07} stroke="rgba(255,255,255,0.5)" strokeWidth="0.8"/>
+        <path d={wedgePath} fill={flesh} opacity="0.95" stroke={rind} strokeWidth="1.1" strokeLinejoin="round"/>
+        <path d={arcPath} fill="none" stroke={rind} strokeWidth="1.6" opacity="0.9" strokeLinecap="round"/>
+        {segAngles.map((a,i) => {
+          const lx = gx + Math.cos(rad(a))*r*0.9, ly = gy2 + Math.sin(rad(a))*r*0.9;
+          return <line key={i} x1={gx} y1={gy2} x2={lx} y2={ly} stroke={pith} strokeWidth="1" opacity="0.8"/>;
+        })}
       </g>;
     }
     if (type === "cherry") {
@@ -274,6 +287,26 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         <line x1={gx} y1={gy2-s*0.07} x2={gx} y2={gy2+s*0.07} stroke="#80c050" strokeWidth="0.6" opacity="0.6"/>
       </g>;
     }
+    if (type === "celery") {
+      const stalkPath = "M"+(gx-s*0.025)+","+(gy2+s*0.1)+" L"+(gx-s*0.02)+","+(gy2-s*0.11)+" Q"+gx+","+(gy2-s*0.13)+" "+(gx+s*0.02)+","+(gy2-s*0.11)+" L"+(gx+s*0.025)+","+(gy2+s*0.1)+" Z";
+      return <g>
+        <path d={stalkPath} fill="#a8d878" opacity="0.92" stroke="#5a8838" strokeWidth="0.9"/>
+        <line x1={gx} y1={gy2-s*0.08} x2={gx} y2={gy2+s*0.08} stroke="#6a9c40" strokeWidth="0.6" opacity="0.6"/>
+        {[-1,1].map(d => (
+          <ellipse key={d} cx={gx+d*s*0.025} cy={gy2-s*0.12} rx={s*0.035} ry={s*0.016}
+            fill="#78b848" opacity="0.9" stroke="#44701f" strokeWidth="0.6"
+            transform={"rotate("+(d*35)+","+(gx+d*s*0.025)+","+(gy2-s*0.12)+")"}/>
+        ))}
+      </g>;
+    }
+    if (type === "peach") {
+      return <g>
+        <circle cx={gx} cy={gy2} r={s*0.08} fill="#f8b070" opacity="0.95" stroke="#c87030" strokeWidth="1"/>
+        <path d={"M"+gx+","+(gy2-s*0.065)+" Q"+(gx+s*0.012)+","+gy2+" "+gx+","+(gy2+s*0.065)}
+          stroke="#c86838" strokeWidth="0.8" fill="none" opacity="0.7"/>
+        <circle cx={gx-s*0.025} cy={gy2-s*0.025} r={s*0.022} fill="#fcd8ac" opacity="0.65"/>
+      </g>;
+    }
     if (type === "salt" || type === "sugar") {
       const rc = type==="salt" ? "#e8e8f0" : "#f8f0d0";
       const rs = type==="salt" ? "#a0a0c0" : "#c0a840";
@@ -283,11 +316,11 @@ function CocktailIllustration({ name, glass, color, size = 64, visOverride = nul
         )))}
       </g>;
     }
-    // A: Custom garnish text label — any unrecognised string renders as a small badge above the rim
+    // Custom garnish text label — any unrecognised string renders as a small tag above the rim
     if (typeof type === "string" && type.length > 0) {
       return <g>
-        <rect x={gx-s*0.14} y={gy2-s*0.09} width={s*0.28} height={s*0.12} rx={3} fill="rgba(0,0,0,0.45)"/>
-        <text x={gx} y={gy2+s*0.015} textAnchor="middle" fontSize={s*0.075} fill="#fff" fontFamily="sans-serif" opacity="0.95">{type.length>6?type.slice(0,5)+"…":type}</text>
+        <rect x={gx-s*0.15} y={gy2-s*0.09} width={s*0.30} height={s*0.13} rx={s*0.065} fill="#a8805a" opacity="0.92" stroke="#6a4a28" strokeWidth="0.8"/>
+        <text x={gx} y={gy2+s*0.02} textAnchor="middle" fontSize={s*0.075} fill="#fff8ec" fontFamily="inherit" opacity="0.95">{type.length>6?type.slice(0,5)+"…":type}</text>
       </g>;
     }
     return null;
@@ -2275,7 +2308,7 @@ export default function CocktailGuide() {
                     <div style={{marginBottom:12}}>
                       <label style={{fontSize:9,letterSpacing:2,color:t.textSecond,textTransform:"uppercase",display:"block",marginBottom:7}}>Garnish Icon</label>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                        {[[null,"None"],["lemon","🍋"],["lime","🍈"],["orange","🍊"],["cherry","🍒"],["mint","🌿"],["olive","🫒"],["pineapple","🍍"],["berry","🫐"],["grapefruit","🍑"],["rosemary","🌾"],["cucumber","🥒"]].map(([val,label]) => (
+                        {[[null,"None"],["lemon","🍋"],["lime","🟢"],["orange","🍊"],["grapefruit","🟠"],["cherry","🍒"],["mint","🌿"],["olive","🫒"],["pineapple","🍍"],["berry","🫐"],["peach","🍑"],["rosemary","🌾"],["cucumber","🥒"],["celery","🥬"],["jalapeño","🌶️"],["ginger","🫚"],["nutmeg","🌰"],["beans","☕"],["bitters","💧"],["passion","🥭"]].map(([val,label]) => (
                           <button key={String(val)} title={val||"None"} onClick={() => setEditVis(prev => ({...prev, garnish:val}))} style={{
                             padding:"4px 9px", borderRadius:10, border:"1px solid",
                             borderColor: editVis.garnish===val ? t.accent : t.btnBorder,
@@ -2287,7 +2320,7 @@ export default function CocktailGuide() {
                         <div style={{display:"flex",alignItems:"center",gap:5,marginTop:4}}>
                           <span style={{fontSize:10,color:t.textMuted}}>Custom:</span>
                           <input
-                            value={typeof editVis.garnish === "string" && !["lemon","lime","orange","cherry","mint","olive","pineapple","berry","grapefruit","rosemary","cucumber"].includes(editVis.garnish) ? editVis.garnish : ""}
+                            value={typeof editVis.garnish === "string" && !["lemon","lime","orange","grapefruit","cherry","mint","olive","pineapple","berry","peach","rosemary","cucumber","celery","jalapeño","ginger","nutmeg","beans","bitters","passion"].includes(editVis.garnish) ? editVis.garnish : ""}
                             onChange={e => setEditVis(prev => ({...prev, garnish: e.target.value || null}))}
                             placeholder="e.g. twist, sprig..."
                             style={{
